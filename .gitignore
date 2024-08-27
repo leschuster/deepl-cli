@@ -24,3 +24,6 @@ go.work.sum
 
 # macOS
 .DS_Store
+
+# Debug
+debug.log
