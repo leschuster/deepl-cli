@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"strings"
 )
 
@@ -67,7 +66,7 @@ func (api *DeeplAPI) Translate(params TranslateParams) (*TranslateResp, error) {
 	}
 
 	// Make request
-	data, err := api.post("/translate", body)
+	data, err := api.request("/translate", http.MethodPost, body)
 	if err != nil {
 		return nil, err
 	}
@@ -82,15 +81,54 @@ func (api *DeeplAPI) Translate(params TranslateParams) (*TranslateResp, error) {
 	return &responseObj, nil
 }
 
-func (api *DeeplAPI) post(endpoint string, body []byte) ([]byte, error) {
-	// Join path
-	reqURL, err := url.JoinPath(api.baseURL, endpoint)
+type Language struct {
+	Language          string `json:"language"`
+	Name              string `json:"name"`
+	SupportsFormality string `json:"supports_formality"`
+}
+
+type GetLanguagesResp struct {
+	Source []Language
+	Target []Language
+}
+
+func (api *DeeplAPI) GetLanguages() (*GetLanguagesResp, error) {
+	// Fetch source languages
+	srcLangRaw, err := api.request("/languages?type=source", http.MethodGet, nil)
 	if err != nil {
-		return nil, fmt.Errorf("could not join paths: %v", err)
+		return nil, err
 	}
 
+	srcLang := []Language{}
+	err = json.Unmarshal(srcLangRaw, &srcLang)
+	if err != nil {
+		return nil, fmt.Errorf("could not unmarshall response: %v", err)
+	}
+
+	// Fetch target languages
+	tarLangRaw, err := api.request("/languages?type=target", http.MethodGet, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	tarLang := []Language{}
+	err = json.Unmarshal(tarLangRaw, &tarLang)
+	if err != nil {
+		return nil, fmt.Errorf("could not unmarshall response: %v", err)
+	}
+
+	return &GetLanguagesResp{
+		Source: srcLang,
+		Target: tarLang,
+	}, nil
+}
+
+func (api *DeeplAPI) request(endpoint, method string, body []byte) ([]byte, error) {
+	// Join path
+	reqURL := api.baseURL + endpoint
+
 	// Create request
-	req, err := http.NewRequest(http.MethodGet, reqURL, bytes.NewBuffer(body))
+	req, err := http.NewRequest(method, reqURL, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("could not create request: %v", err)
 	}
@@ -104,7 +142,7 @@ func (api *DeeplAPI) post(endpoint string, body []byte) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode > 299 {
-		return nil, fmt.Errorf("request to '%s' failed with status %s: %v", reqURL, resp.Status, err)
+		return nil, fmt.Errorf("request to '%s' failed with status %s", reqURL, resp.Status)
 	}
 
 	// Read response body
