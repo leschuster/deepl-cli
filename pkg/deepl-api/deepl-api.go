@@ -10,6 +10,14 @@ import (
 	"strings"
 )
 
+const (
+	FormalityDefault    = "default"
+	FormalityMore       = "more"
+	FormalityLess       = "less"
+	FormalityPreferMore = "prefer_more"
+	FormalityPreferLess = "prefer_less"
+)
+
 const baseURLFree = "https://api-free.deepl.com/v2"
 const baseURLPro = "https://api.deepl.com/v2"
 
