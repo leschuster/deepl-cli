@@ -25,18 +25,14 @@ func main() {
 
 	api := deeplapi.New(apiKey)
 
-	/*
-		opt := deeplapi.TranslateParams{
-			Text:       []string{"Sets whether the translation engine should respect the original formatting, even if it would usually correct some aspects."},
-			SourceLang: "EN",
-			TargetLang: "FR",
-		}
-	*/
+	opt := deeplapi.TranslateParams{
+		Text:       []string{"Sets whether the translation engine should respect the original formatting, even if it would usually correct some aspects."},
+		SourceLang: "EN",
+		TargetLang: "FR",
+	}
 
-	/*
-		res, err := api.Translate(opt)
-	*/
-	res, err := api.GetLanguages()
+	res, err := api.Translate(opt)
+	// res, err := api.GetLanguages()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(2)
