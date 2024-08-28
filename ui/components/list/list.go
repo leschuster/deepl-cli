@@ -12,6 +12,13 @@ type Item struct {
 	title, prefix string
 }
 
+func NewItem(title, prefix string) Item {
+	return Item{
+		title:  title,
+		prefix: prefix,
+	}
+}
+
 func (i Item) Title() string {
 	return i.title
 }

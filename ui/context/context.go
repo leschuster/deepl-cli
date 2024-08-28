@@ -3,6 +3,7 @@ package context
 import (
 	deeplapi "github.com/leschuster/deepl-cli/pkg/deepl-api"
 	"github.com/leschuster/deepl-cli/ui/styles"
+	"github.com/leschuster/deepl-cli/ui/utils"
 )
 
 type ProgramContext struct {
@@ -12,13 +13,13 @@ type ProgramContext struct {
 	Styles             *styles.Styles
 	SourceLanguage     *deeplapi.Language
 	TargetLanguage     *deeplapi.Language
-	AvailableLanguages *deeplapi.GetLanguagesResp
+	AvailableLanguages utils.AvailableLanguages
 }
 
-func New() *ProgramContext {
-	ctx := &ProgramContext{}
-
-	ctx.Styles = styles.New()
-
-	return ctx
+func New(api *deeplapi.DeeplAPI) *ProgramContext {
+	return &ProgramContext{
+		Api:                api,
+		Styles:             styles.New(),
+		AvailableLanguages: utils.NewAvailableLanguages(api),
+	}
 }

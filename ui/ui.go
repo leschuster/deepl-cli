@@ -8,6 +8,7 @@ import (
 	deeplapi "github.com/leschuster/deepl-cli/pkg/deepl-api"
 	"github.com/leschuster/deepl-cli/ui/context"
 	mainview "github.com/leschuster/deepl-cli/ui/views/main-view"
+	srclangview "github.com/leschuster/deepl-cli/ui/views/src-lang-view"
 )
 
 const (
@@ -28,12 +29,12 @@ type Model struct {
 }
 
 func InitialModel(api *deeplapi.DeeplAPI) Model {
-	ctx := context.New()
-	ctx.Api = api
+	ctx := context.New(api)
 
 	// TODO
 	views := []tea.Model{
 		mainview.InitialModel(ctx),
+		srclangview.InitialModel(ctx),
 	}
 
 	return Model{

@@ -24,7 +24,7 @@ type Styles struct {
 		SelectedTitleStyle lipgloss.Style
 	}
 
-	ChooseOptionView struct {
+	LangView struct {
 		Style lipgloss.Style
 	}
 }
@@ -36,6 +36,10 @@ func New() *Styles {
 		Padding(1, 2).
 		Border(lipgloss.ThickBorder()).
 		Margin(2, 2)
+
+	s.LangView.Style = lipgloss.NewStyle().
+		Padding(1, 2).
+		Border(lipgloss.RoundedBorder())
 
 	return &s
 }
