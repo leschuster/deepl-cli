@@ -5,7 +5,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	languageselect "github.com/leschuster/deepl-cli/ui/components/language-select"
+	languagebutton "github.com/leschuster/deepl-cli/ui/components/language-button"
 	"github.com/leschuster/deepl-cli/ui/components/textarea"
 	"github.com/leschuster/deepl-cli/ui/context"
 )
@@ -14,8 +14,8 @@ type Model struct {
 	ctx                 *context.ProgramContext
 	inputTextModel      textarea.Model
 	outputTextModel     textarea.Model
-	sourceLanguageModel languageselect.Model
-	targetLanguageModel languageselect.Model
+	sourceLanguageModel languagebutton.Model
+	targetLanguageModel languagebutton.Model
 }
 
 func InitialModel(ctx *context.ProgramContext) Model {
@@ -23,8 +23,8 @@ func InitialModel(ctx *context.ProgramContext) Model {
 		ctx:                 ctx,
 		inputTextModel:      textarea.InitialModel(ctx),
 		outputTextModel:     textarea.InitialModel(ctx),
-		sourceLanguageModel: languageselect.InitialModel(ctx, "Auto"),
-		targetLanguageModel: languageselect.InitialModel(ctx, "-"),
+		sourceLanguageModel: languagebutton.InitialModel(ctx, "Auto"),
+		targetLanguageModel: languagebutton.InitialModel(ctx, "-"),
 	}
 }
 

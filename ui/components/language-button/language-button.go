@@ -1,4 +1,4 @@
-package languageselect
+package languagebutton
 
 import (
 	"github.com/charmbracelet/bubbles/textinput"
