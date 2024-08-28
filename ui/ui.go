@@ -21,13 +21,13 @@ type model struct {
 }
 
 func initialModel(api *deeplapi.DeeplAPI) model {
-	ctx := &context.ProgramContext{}
+	ctx := context.New()
 
 	return model{
 		ctx:             ctx,
 		api:             api,
-		inputTextModel:  textarea.InitialModel(),
-		outputTextModel: textarea.InitialModel(),
+		inputTextModel:  textarea.InitialModel(ctx),
+		outputTextModel: textarea.InitialModel(ctx),
 	}
 }
 
@@ -41,6 +41,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.ctx.ScreenWidth = msg.Width
 		m.ctx.ScreenHeight = msg.Height
+
+		m.inputTextModel.Resize(msg.Width/2-10, msg.Height/2)
+		m.outputTextModel.Resize(msg.Width/2-10, msg.Height/2)
+
 		m.loaded = true
 
 		return m, nil
