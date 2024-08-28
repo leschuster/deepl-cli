@@ -5,45 +5,58 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	deeplapi "github.com/leschuster/deepl-cli/pkg/deepl-api"
-	"github.com/leschuster/deepl-cli/ui/components/textarea"
 	"github.com/leschuster/deepl-cli/ui/context"
+	mainview "github.com/leschuster/deepl-cli/ui/views/main-view"
 )
 
-type model struct {
-	ctx             *context.ProgramContext
-	api             *deeplapi.DeeplAPI
-	inputTextModel  textarea.Model
-	outputTextModel textarea.Model
-	loaded          bool
-	quitting        bool
+const (
+	mainViewIdx = iota
+	srcLangViewIdx
+	tarLangViewIdx
+	loginViewIdx
+)
+
+type index int
+
+type Model struct {
+	ctx      *context.ProgramContext
+	views    []tea.Model
+	currView index
+	loaded   bool
+	quitting bool
 }
 
-func initialModel(api *deeplapi.DeeplAPI) model {
+func InitialModel(api *deeplapi.DeeplAPI) Model {
 	ctx := context.New()
+	ctx.Api = api
 
-	return model{
-		ctx:             ctx,
-		api:             api,
-		inputTextModel:  textarea.InitialModel(ctx),
-		outputTextModel: textarea.InitialModel(ctx),
+	// TODO
+	views := []tea.Model{
+		mainview.InitialModel(ctx),
+	}
+
+	return Model{
+		ctx:      ctx,
+		views:    views,
+		currView: mainViewIdx,
 	}
 }
 
-func (m model) Init() tea.Cmd {
-	return tea.Batch(tea.EnterAltScreen)
+func (m Model) Init() tea.Cmd {
+	return nil
 }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	// var cmd tea.Cmd
+	// var cmds []tea.Cmd
+
 	switch msg := msg.(type) {
 
+	// Did the window size change?
 	case tea.WindowSizeMsg:
 		m.ctx.ScreenWidth = msg.Width
 		m.ctx.ScreenHeight = msg.Height
-
-		m.inputTextModel.Resize(msg.Width/2-10, msg.Height/2)
-		m.outputTextModel.Resize(msg.Width/2-10, msg.Height/2)
 
 		m.loaded = true
 
@@ -52,7 +65,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Is it a key press?
 	case tea.KeyMsg:
 		switch msg.String() {
-		// Exit program
 		case "ctrl+c", "q":
 			m.quitting = true
 			return m, tea.Quit
@@ -62,23 +74,21 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m model) View() string {
+func (m Model) View() string {
 	if m.quitting {
 		return ""
 	}
+
 	if !m.loaded {
 		return "Loading..."
 	}
 
-	return lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		m.inputTextModel.View(),
-		m.outputTextModel.View(),
-	)
+	return m.views[m.currView].View()
 }
 
 func Run(api *deeplapi.DeeplAPI) {
-	p := tea.NewProgram(initialModel(api))
+	p := tea.NewProgram(InitialModel(api), tea.WithAltScreen())
+
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("There has been an error: %v\n", err)
 		os.Exit(1)

@@ -6,11 +6,10 @@ import (
 )
 
 type ProgramContext struct {
-	Styles             *styles.Styles
+	Api                *deeplapi.DeeplAPI
 	ScreenWidth        int
 	ScreenHeight       int
-	inputText          string
-	outputText         string
+	Styles             *styles.Styles
 	SourceLanguage     *deeplapi.Language
 	TargetLanguage     *deeplapi.Language
 	AvailableLanguages *deeplapi.GetLanguagesResp

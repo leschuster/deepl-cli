@@ -23,6 +23,10 @@ type Styles struct {
 		NormalTitleStyle   lipgloss.Style
 		SelectedTitleStyle lipgloss.Style
 	}
+
+	ChooseOptionView struct {
+		Style lipgloss.Style
+	}
 }
 
 func New() *Styles {
