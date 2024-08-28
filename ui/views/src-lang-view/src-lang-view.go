@@ -8,10 +8,8 @@ import (
 )
 
 type Model struct {
-	ctx     *context.ProgramContext
-	list    list.Model
-	err     error
-	loading bool
+	ctx  *context.ProgramContext
+	list list.Model
 }
 
 func InitialModel(ctx *context.ProgramContext) Model {

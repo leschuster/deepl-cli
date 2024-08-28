@@ -7,6 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	deeplapi "github.com/leschuster/deepl-cli/pkg/deepl-api"
 	"github.com/leschuster/deepl-cli/ui/context"
+	"github.com/leschuster/deepl-cli/ui/utils"
 	mainview "github.com/leschuster/deepl-cli/ui/views/main-view"
 	srclangview "github.com/leschuster/deepl-cli/ui/views/src-lang-view"
 )
@@ -24,6 +25,7 @@ type Model struct {
 	ctx      *context.ProgramContext
 	views    []tea.Model
 	currView index
+	err      error
 	loaded   bool
 	quitting bool
 }
@@ -49,10 +51,15 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	// var cmd tea.Cmd
-	// var cmds []tea.Cmd
+	var cmd tea.Cmd
+	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+
+	// Did a custom error occur?
+	case utils.ErrMsg:
+		m.err = msg.Err
+		return m, tea.Quit
 
 	// Did the window size change?
 	case tea.WindowSizeMsg:
@@ -69,13 +76,27 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			m.quitting = true
 			return m, tea.Quit
+		case "1":
+			m.currView = mainViewIdx
+			return m, m.views[m.currView].Init()
+		case "2":
+			m.currView = srcLangViewIdx
+			return m, m.views[m.currView].Init()
 		}
 	}
 
-	return m, nil
+	model, cmd := m.views[m.currView].Update(msg)
+	cmds = append(cmds, cmd)
+	m.views[m.currView] = model
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
+	if m.err != nil {
+		return m.err.Error()
+	}
+
 	if m.quitting {
 		return ""
 	}
