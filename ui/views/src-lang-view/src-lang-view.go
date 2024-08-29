@@ -25,6 +25,7 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
+	var cmds []tea.Cmd
 
 	switch msg.(type) {
 	case utils.LoadedNewLanguagesMsg:
@@ -43,7 +44,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.SetItems(items)
 	}
 
-	return m, cmd
+	l, cmd := m.list.Update(msg)
+	m.list = l.(list.Model)
+	cmds = append(cmds, cmd)
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {

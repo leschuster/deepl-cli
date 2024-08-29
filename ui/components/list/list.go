@@ -20,7 +20,11 @@ func NewItem(title, prefix string) Item {
 }
 
 func (i Item) Title() string {
-	return i.title
+	return fmt.Sprintf("%s - %s", i.prefix, i.title)
+}
+
+func (i Item) Description() string {
+	return ""
 }
 
 func (i Item) Prefix() string {
@@ -39,11 +43,11 @@ type Model struct {
 func InitialModel(ctx *context.ProgramContext) Model {
 	delegate := list.NewDefaultDelegate()
 	delegate.ShowDescription = false
-	delegate.Styles.NormalTitle = ctx.Styles.List.NormalTitleStyle
-	delegate.Styles.SelectedTitle = ctx.Styles.List.SelectedTitleStyle
+	//delegate.Styles.NormalTitle = ctx.Styles.List.NormalTitleStyle
+	//delegate.Styles.SelectedTitle = ctx.Styles.List.SelectedTitleStyle
 
-	li := list.New([]list.Item{}, delegate, 0, 0)
-	li.Styles = ctx.Styles.List.Styles
+	li := list.New([]list.Item{}, delegate, 20, 30)
+	// li.Styles = ctx.Styles.List.Styles
 
 	return Model{
 		ctx:  ctx,
@@ -62,6 +66,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	items := m.list.Items()
+	_ = items
 	return m.list.View()
 }
 
