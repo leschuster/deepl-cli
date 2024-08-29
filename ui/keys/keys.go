@@ -10,9 +10,13 @@ type KeyMap struct {
 	// Select an option
 	Select key.Binding
 
+	// Navigation
+	Up    key.Binding
+	Right key.Binding
+	Down  key.Binding
+	Left  key.Binding
+
 	// Keybindings used when browsing a list.
-	CursorUp    key.Binding
-	CursorDown  key.Binding
 	NextPage    key.Binding
 	PrevPage    key.Binding
 	GoToStart   key.Binding
@@ -37,12 +41,13 @@ type KeyMap struct {
 
 func (k *KeyMap) ConvertToListKeyMap() list.KeyMap {
 	return list.KeyMap{
-		CursorUp:             k.CursorUp,
-		CursorDown:           k.CursorDown,
+		CursorUp:             k.Up,
+		CursorDown:           k.Down,
 		NextPage:             k.NextPage,
 		PrevPage:             k.PrevPage,
 		GoToStart:            k.GoToStart,
 		GoToEnd:              k.GoToEnd,
+		Filter:               k.Filter,
 		ClearFilter:          k.ClearFilter,
 		CancelWhileFiltering: k.CancelWhileFiltering,
 		AcceptWhileFiltering: k.AcceptWhileFiltering,

@@ -9,15 +9,25 @@ func DefaultKeyMap() *KeyMap {
 			key.WithHelp("enter", "select"),
 		),
 
-		// Browsing.
-		CursorUp: key.NewBinding(
+		// Navigation
+		Up: key.NewBinding(
 			key.WithKeys("up", "k"),
 			key.WithHelp("↑/k", "up"),
 		),
-		CursorDown: key.NewBinding(
+		Right: key.NewBinding(
+			key.WithKeys("right", "l"),
+			key.WithHelp("→/l", "right"),
+		),
+		Down: key.NewBinding(
 			key.WithKeys("down", "j"),
 			key.WithHelp("↓/j", "down"),
 		),
+		Left: key.NewBinding(
+			key.WithKeys("left", "h"),
+			key.WithHelp("←/h", "left"),
+		),
+
+		// Browsing.
 		PrevPage: key.NewBinding(
 			key.WithKeys("left", "h", "pgup", "b", "u"),
 			key.WithHelp("←/h/pgup", "prev page"),
