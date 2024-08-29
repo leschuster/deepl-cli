@@ -92,6 +92,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.currView = srcLangViewIdx
 			return m, m.views[m.currView].Init()
 		}
+
+	// Did the user select a source language?
+	case utils.SrcLangSelected:
+		m.ctx.SourceLanguage = &msg.Language
+		m.currView = mainViewIdx
 	}
 
 	model, cmd := m.views[m.currView].Update(msg)
