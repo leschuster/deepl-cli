@@ -66,9 +66,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.ctx.ScreenWidth = msg.Width
 		m.ctx.ScreenHeight = msg.Height
 
+		for i, view := range m.views {
+			model, cmd := view.Update(msg)
+			m.views[i] = model
+			cmds = append(cmds, cmd)
+		}
+
 		m.loaded = true
 
-		return m, nil
+		return m, tea.Batch(cmds...)
 
 	// Is it a key press?
 	case tea.KeyMsg:
@@ -78,7 +84,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case "1":
 			m.currView = mainViewIdx
-			return m, m.views[m.currView].Init()
+
+			cmds = append(cmds, m.views[m.currView].Init())
+
+			return m, tea.Batch(cmds...)
 		case "2":
 			m.currView = srcLangViewIdx
 			return m, m.views[m.currView].Init()

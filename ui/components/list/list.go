@@ -36,18 +36,19 @@ func (i Item) FilterValue() string {
 }
 
 type Model struct {
-	ctx  *context.ProgramContext
-	list list.Model
+	ctx           *context.ProgramContext
+	list          list.Model
+	width, height int
 }
 
 func InitialModel(ctx *context.ProgramContext) Model {
 	delegate := list.NewDefaultDelegate()
 	delegate.ShowDescription = false
-	//delegate.Styles.NormalTitle = ctx.Styles.List.NormalTitleStyle
-	//delegate.Styles.SelectedTitle = ctx.Styles.List.SelectedTitleStyle
+	delegate.Styles.NormalTitle = ctx.Styles.List.NormalTitleStyle
+	delegate.Styles.SelectedTitle = ctx.Styles.List.SelectedTitleStyle
 
-	li := list.New([]list.Item{}, delegate, 20, 30)
-	// li.Styles = ctx.Styles.List.Styles
+	li := list.New([]list.Item{}, delegate, 0, 0)
+	li.Styles = ctx.Styles.List.Style
 
 	return Model{
 		ctx:  ctx,
@@ -72,6 +73,7 @@ func (m Model) View() string {
 }
 
 func (m *Model) Resize(width, height int) {
+	m.width, m.height = width, height
 	m.list.SetWidth(width)
 	m.list.SetHeight(height)
 }
