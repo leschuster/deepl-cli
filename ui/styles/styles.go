@@ -13,6 +13,10 @@ type Styles struct {
 			Foreground lipgloss.AdaptiveColor
 			Background lipgloss.AdaptiveColor
 		}
+		ButtonForeground      lipgloss.AdaptiveColor
+		ButtonBackground      lipgloss.AdaptiveColor
+		ButtonHoverForeground lipgloss.AdaptiveColor
+		ButtonHoverBackground lipgloss.AdaptiveColor
 	}
 
 	Textarea struct {
@@ -34,6 +38,11 @@ type Styles struct {
 	LangView struct {
 		Style lipgloss.Style
 	}
+
+	LanguageButton struct {
+		Style        lipgloss.Style
+		HoveredStyle lipgloss.Style
+	}
 }
 
 func New() *Styles {
@@ -43,6 +52,10 @@ func New() *Styles {
 	s.Colors.Text = lipgloss.AdaptiveColor{Light: "#1a1a1a", Dark: "#dddddd"}
 	s.Colors.Title.Foreground = lipgloss.AdaptiveColor{Light: "62", Dark: "62"}
 	s.Colors.Title.Background = lipgloss.AdaptiveColor{Light: "230", Dark: "230"}
+	s.Colors.ButtonForeground = lipgloss.AdaptiveColor{Light: "3", Dark: "3"}
+	s.Colors.ButtonBackground = lipgloss.AdaptiveColor{Light: "360", Dark: "360"}
+	s.Colors.ButtonHoverForeground = lipgloss.AdaptiveColor{Light: "82", Dark: "82"}
+	s.Colors.ButtonHoverBackground = lipgloss.AdaptiveColor{Light: "42", Dark: "42"}
 
 	s.Textarea.Style = lipgloss.NewStyle().
 		Padding(1, 2).
@@ -68,8 +81,19 @@ func New() *Styles {
 
 	s.LangView.Style = lipgloss.NewStyle().
 		Padding(1, 2).
-		Border(lipgloss.RoundedBorder()).
+		Border(lipgloss.NormalBorder()).
 		BorderBackground(lipgloss.Color("62"))
+
+	s.LanguageButton.Style = lipgloss.NewStyle().
+		Padding(0, 1).
+		Border(lipgloss.Border{Left: ">"}, false, false, false, true).
+		Foreground(s.Colors.ButtonForeground).
+		Background(s.Colors.ButtonBackground)
+
+	s.LanguageButton.HoveredStyle = lipgloss.NewStyle().
+		Inherit(s.LanguageButton.Style).
+		Foreground(s.Colors.ButtonHoverForeground).
+		Background(s.Colors.ButtonHoverBackground)
 
 	return &s
 }

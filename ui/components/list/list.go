@@ -47,7 +47,7 @@ type Model[T interface{}] struct {
 	width, height int
 }
 
-func InitialModel[T interface{}](ctx *context.ProgramContext) Model[T] {
+func InitialModel[T interface{}](ctx *context.ProgramContext, title string) Model[T] {
 	delegate := list.NewDefaultDelegate()
 	delegate.ShowDescription = false
 	delegate.Styles.NormalTitle = ctx.Styles.List.NormalTitleStyle
@@ -56,6 +56,7 @@ func InitialModel[T interface{}](ctx *context.ProgramContext) Model[T] {
 	li := list.New([]list.Item{}, delegate, 0, 0)
 	li.Styles = ctx.Styles.List.Style
 	li.KeyMap = ctx.Keys.ConvertToListKeyMap()
+	li.Title = title
 
 	return Model[T]{
 		ctx:  ctx,

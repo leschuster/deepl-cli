@@ -1,57 +1,64 @@
 package languagebutton
 
 import (
-	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/leschuster/deepl-cli/ui/context"
+	"github.com/leschuster/deepl-cli/ui/navigator"
 )
 
 type Model struct {
-	ctx       *context.ProgramContext
-	textinput textinput.Model
+	ctx    *context.ProgramContext
+	title  string
+	active bool
+	cmd    tea.Cmd
 }
 
-func InitialModel(ctx *context.ProgramContext, defaultInput string) Model {
-	ti := textinput.New()
-	ti.Placeholder = defaultInput
-	ti.Width = ctx.Styles.LanguageSelect.Width
-	ti.Prompt = "Hello"
-	ti.PromptStyle = ctx.Styles.LanguageSelect.PromptStyle
-	ti.Cursor.Style = ctx.Styles.LanguageSelect.CursorStyle
-	ti.ShowSuggestions = true
-
-	// TODO
-	ti.SetSuggestions([]string{"DE", "EN", "FR"})
-
+func InitialModel(ctx *context.ProgramContext, title string, onClick tea.Cmd) Model {
 	return Model{
-		ctx:       ctx,
-		textinput: ti,
+		ctx:   ctx,
+		title: title,
+		cmd:   onClick,
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	return textinput.Blink
+	return nil
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "enter":
-			if m.textinput.Focused() {
-				m.textinput.Blur()
-			}
+		switch {
+		case key.Matches(msg, m.ctx.Keys.Select):
+			return nil, m.cmd
 		}
 	}
 
-	m.textinput, cmd = m.textinput.Update(msg)
-	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
-	return m.textinput.View()
+	fn := m.ctx.Styles.LanguageButton.Style.Render
+
+	if m.active {
+		fn = m.ctx.Styles.LanguageButton.HoveredStyle.Render
+	}
+
+	return fn(m.title)
+}
+
+// Implement NavModal interface
+func (m Model) IsActive() bool {
+	return m.active
+}
+func (m Model) SetActive() navigator.NavModal {
+	m.active = true
+	return m
+}
+func (m Model) UnsetActive() navigator.NavModal {
+	m.active = false
+	return m
 }

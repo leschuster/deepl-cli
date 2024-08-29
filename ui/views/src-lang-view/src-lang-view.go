@@ -20,7 +20,7 @@ type Model struct {
 func InitialModel(ctx *context.ProgramContext) Model {
 	return Model{
 		ctx:  ctx,
-		list: list.InitialModel[deeplapi.Language](ctx),
+		list: list.InitialModel[deeplapi.Language](ctx, "Select Source Language:"),
 	}
 }
 
