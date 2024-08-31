@@ -4,42 +4,63 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/leschuster/deepl-cli/ui/components/button"
+	"github.com/leschuster/deepl-cli/ui/components/layout"
 	"github.com/leschuster/deepl-cli/ui/components/textarea"
 	"github.com/leschuster/deepl-cli/ui/context"
-	"github.com/leschuster/deepl-cli/ui/navigator"
 	"github.com/leschuster/deepl-cli/ui/utils"
 )
 
 type Model struct {
 	ctx        *context.ProgramContext
-	nav        navigator.Navigator
+	lay        *layout.Layout
 	insertMode bool
 }
 
 func InitialModel(ctx *context.ProgramContext) Model {
-	var srcLangBtn, tarLangBtn navigator.NavModal
+	var srcLangBtn, tarLangBtn, formalityBth layout.LayoutModel
 	srcLangBtn = button.InitialModel(ctx, "Source Language", "AUTO", onSrcLangBtnClick)
 	tarLangBtn = button.InitialModel(ctx, "Target Language", "Select", onTarLangBtnClick)
+	formalityBth = button.InitialModel(ctx, "Formality", "Default", onFormalityBtnClick)
 
-	var srcTextArea, tarTextArea navigator.NavModal
+	var srcTextArea, tarTextArea layout.LayoutModel
 	srcTextArea = textarea.InitialModel(ctx, "Type to translate.", false)
 	tarTextArea = textarea.InitialModel(ctx, "", true)
 
-	mat := navigator.Matrix{
-		[](*navigator.NavModal){&srcLangBtn, &tarLangBtn},
-		[](*navigator.NavModal){&srcTextArea, &tarTextArea},
-	}
+	var translateBtn layout.LayoutModel
+	translateBtn = button.InitialModel(ctx, "", "Translate", onTranslateBtnClick)
 
-	nav := navigator.New(mat)
+	lay, err := layout.NewLayout(
+		layout.NewRow(
+			layout.Fill(&srcLangBtn, layout.Left, 0.5),
+			layout.Empty(),
+			layout.Fill(&tarLangBtn, layout.Left, 0.25),
+			layout.Fill(&formalityBth, layout.Right, 0.25),
+		),
+		layout.NewRow(
+			layout.FillAuto(&srcTextArea, layout.Left),
+			layout.Fixed(nil, 6).NotSelectable(),
+			layout.FillAuto(&tarTextArea, layout.Left),
+			layout.Empty(),
+		),
+		layout.NewRow(
+			layout.Empty(),
+			layout.FillAuto(&translateBtn, layout.Center),
+			layout.Empty(),
+			layout.Empty(),
+		),
+	)
+	if err != nil {
+		// TODO
+	}
 
 	return Model{
 		ctx: ctx,
-		nav: nav,
+		lay: lay,
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	return m.nav.Init()
+	return m.lay.Init()
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -49,6 +70,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		// TODO
+		m.lay.Resize(msg.Width, msg.Height)
+		// needrender
 	case utils.EnteredInsertMode:
 		m.insertMode = true
 	case utils.ExitedInsertMode:
@@ -58,28 +81,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case m.insertMode:
 			// Ignore Keystrokes
 		case key.Matches(msg, m.ctx.Keys.Up):
-			cmd = m.nav.Up()
-			cmds = append(cmds, cmd)
+			m.lay.NavigateUp()
 		case key.Matches(msg, m.ctx.Keys.Right):
-			cmd = m.nav.Right()
-			cmds = append(cmds, cmd)
+			m.lay.NavigateRight()
 		case key.Matches(msg, m.ctx.Keys.Down):
-			cmd = m.nav.Down()
-			cmds = append(cmds, cmd)
+			m.lay.NavigateDown()
 		case key.Matches(msg, m.ctx.Keys.Left):
-			cmd = m.nav.Left()
-			cmds = append(cmds, cmd)
+			m.lay.NavigateLeft()
 		}
 	}
 
-	cmd = m.nav.UpdateActive(msg)
+	cmd = m.lay.UpdateActive(msg)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
-	return m.nav.View()
+	return m.lay.View()
 }
 
 func onSrcLangBtnClick() tea.Msg {
@@ -87,5 +106,13 @@ func onSrcLangBtnClick() tea.Msg {
 }
 
 func onTarLangBtnClick() tea.Msg {
+	return nil
+}
+
+func onTranslateBtnClick() tea.Msg {
+	return nil
+}
+
+func onFormalityBtnClick() tea.Msg {
 	return nil
 }

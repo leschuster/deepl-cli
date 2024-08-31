@@ -5,8 +5,8 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/leschuster/deepl-cli/ui/components/layout"
 	"github.com/leschuster/deepl-cli/ui/context"
-	"github.com/leschuster/deepl-cli/ui/navigator"
 )
 
 type Model struct {
@@ -62,15 +62,18 @@ func (m *Model) SetText(text string) {
 	m.text = text
 }
 
-// Implement NavModal interface
+// Implement LayoutModel interface
 func (m Model) IsActive() bool {
 	return m.active
 }
-func (m Model) SetActive() navigator.NavModal {
+func (m Model) SetActive() layout.LayoutModel {
 	m.active = true
 	return m
 }
-func (m Model) UnsetActive() navigator.NavModal {
+func (m Model) UnsetActive() layout.LayoutModel {
 	m.active = false
+	return m
+}
+func (m Model) OnAvailWidthChange(width int) layout.LayoutModel {
 	return m
 }
