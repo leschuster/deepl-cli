@@ -43,8 +43,8 @@ func InitialModel(ctx *context.ProgramContext) Model {
 			layout.Empty(),
 		),
 		layout.NewRow(
-			layout.Empty(),
 			layout.FillAuto(&translateBtn, layout.Center),
+			layout.Empty(),
 			layout.Empty(),
 			layout.Empty(),
 		),

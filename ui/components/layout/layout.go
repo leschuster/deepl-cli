@@ -12,7 +12,9 @@ type Layout struct {
 	rows                      []Row
 	screenWidth, screenHeight int
 	colCount, rowCount        int // "Size of Matrix"
-	x, y                      int // Active Element
+	active                    struct {
+		x, y int
+	}
 }
 
 func NewLayout(rows ...Row) (*Layout, error) {
@@ -40,7 +42,6 @@ func NewLayout(rows ...Row) (*Layout, error) {
 		rows:     rows,
 		colCount: colCount,
 		rowCount: rowCount,
-		x:        0, y: 0,
 	}, nil
 }
 
@@ -64,7 +65,7 @@ func (l *Layout) Init() tea.Cmd {
 
 func (l *Layout) UpdateActive(msg tea.Msg) tea.Cmd {
 	if el := l.GetActive(); el != nil && el.model != nil {
-		return l.update(msg, l.x, l.y)
+		return l.update(msg, l.active.x, l.active.y)
 	}
 	return nil
 }
@@ -88,7 +89,7 @@ func (l *Layout) GetActive() *PositionalElement {
 		return nil
 	}
 
-	el := l.get(l.x, l.y)
+	el := l.get(l.active.x, l.active.y)
 
 	return &el
 }
@@ -97,7 +98,7 @@ func (l *Layout) GetActive() *PositionalElement {
 func (l *Layout) SetActive(x, y int) {
 	if curr := l.GetActive(); curr != nil {
 		el := curr.unsetActive()
-		l.set(l.x, l.y, el)
+		l.set(l.active.x, l.active.y, el)
 	}
 
 	if x >= l.colCount || y >= l.rowCount {
@@ -109,7 +110,7 @@ func (l *Layout) SetActive(x, y int) {
 	el := next.setActive()
 	l.set(x, y, el)
 
-	l.x, l.y = x, y
+	l.active.x, l.active.y = x, y
 }
 
 func (l *Layout) View() string {
@@ -136,17 +137,127 @@ func (l *Layout) Resize(width, height int) {
 }
 
 func (l *Layout) NavigateUp() {
+	xOld, yOld := l.active.x, l.active.y
+	if yOld <= 0 { // Cannot go higher
+		return
+	}
 
+	// Go one row higher and search for the element nearest xOld
+	// If we do not find anything, go higher...
+	yNew := yOld - 1
+
+	for {
+		if yNew < 0 {
+			// Did not find anything
+			// Stay with current element
+			return
+		}
+
+		xNew, ok := getBestValue(xOld, l.rows[yNew].elements)
+		if ok {
+			// Yay, found it!
+			l.SetActive(xNew, yNew)
+			return
+		}
+
+		yNew-- // Try one row higher
+	}
 }
 
-func (l *Layout) NavigateRight() {}
+func (l *Layout) NavigateRight() {
+	xOld, yOld := l.active.x, l.active.y
+	if xOld >= l.colCount-1 { // Cannot go more to the right
+		return
+	}
 
-func (l *Layout) NavigateDown() {}
+	// Go one column to the right and search for the element nearest yOld
+	xNew := xOld + 1
 
-func (l *Layout) NavigateLeft() {}
+	for {
+		if xNew >= l.colCount {
+			// Did not find anything
+			// Stay with current element
+			return
+		}
+
+		yNew, ok := getBestValue(yOld, l.getCol(xNew))
+		if ok {
+			// Yay, found it!
+			l.SetActive(xNew, yNew)
+			return
+		}
+
+		xNew++ // Try one row more to the right
+	}
+}
+
+func (l *Layout) NavigateDown() {
+	xOld, yOld := l.active.x, l.active.y
+	if yOld >= l.rowCount-1 { // Cannot go lower
+		return
+	}
+
+	// Go one row lower and search for the element nearest xOld
+	// If we do not find anything, go lower...
+	yNew := yOld + 1
+
+	for {
+		if yNew >= l.rowCount {
+			// Did not find anything
+			// Stay with current element
+			return
+		}
+
+		xNew, ok := getBestValue(xOld, l.rows[yNew].elements)
+		if ok {
+			// Yay, found it!
+			l.SetActive(xNew, yNew)
+			return
+		}
+
+		yNew++ // Try one row lower
+	}
+}
+
+func (l *Layout) NavigateLeft() {
+	xOld, yOld := l.active.x, l.active.y
+	if xOld <= 0 { // Cannot go more to the left
+		return
+	}
+
+	// Go one column to the left and search for the element nearest yOld
+	xNew := xOld - 1
+
+	for {
+		if xNew < 0 {
+			// Did not find anything
+			// Stay with current element
+			return
+		}
+
+		yNew, ok := getBestValue(yOld, l.getCol(xNew))
+		if ok {
+			// Yay, found it!
+			l.SetActive(xNew, yNew)
+			return
+		}
+
+		xNew-- // Try one row more to the left
+	}
+}
 
 func (l *Layout) get(x, y int) PositionalElement {
 	return l.rows[y].get(x)
+}
+
+func (l *Layout) getCol(x int) []PositionalElement {
+	col := make([]PositionalElement, l.rowCount)
+
+	for i, row := range l.rows {
+		col[i] = row.get(x)
+	}
+
+	return col
 }
 
 func (l *Layout) set(x, y int, el PositionalElement) {
@@ -166,4 +277,41 @@ func (l *Layout) update(msg tea.Msg, x, y int) tea.Cmd {
 	}
 
 	return nil
+}
+
+// Helper function to return the non-empty, selectable value nearest index "best"
+func getBestValue(best int, slice [](PositionalElement)) (idx int, ok bool) {
+	if isValidChoice(slice[best]) {
+		return best, true
+	}
+
+	stepsLeft := best
+	stepsRight := len(slice) - best - 1
+
+	maxOffset := max(stepsLeft, stepsRight)
+
+	for offset := 1; offset <= maxOffset; offset++ {
+		if i := best - offset; i >= 0 && isValidChoice(slice[i]) {
+			return i, true
+		}
+
+		if j := best + offset; j < len(slice) && isValidChoice(slice[j]) {
+			return j, true
+		}
+	}
+
+	return -1, false
+}
+
+func isValidChoice(el PositionalElement) bool {
+	if el.model == nil {
+		return false
+	}
+	if !el.selectable {
+		return false
+	}
+	if el.elType == empty {
+		return false
+	}
+	return true
 }
