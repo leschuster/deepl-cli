@@ -2,6 +2,7 @@ package layout
 
 import (
 	"fmt"
+	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -44,25 +45,71 @@ func NewLayout(rows ...Row) (*Layout, error) {
 }
 
 func (l *Layout) Init() tea.Cmd {
-	//TODO
-	return nil
+	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
+	for _, row := range l.rows {
+		for el := range row.NotNil() {
+			if el.model == nil {
+				continue
+			}
+
+			cmd = (*el.model).Init()
+			cmds = append(cmds, cmd)
+		}
+	}
+
+	return tea.Batch(cmds...)
 }
 
 func (l *Layout) UpdateActive(msg tea.Msg) tea.Cmd {
+	if el := l.GetActive(); el != nil && el.model != nil {
+		return l.update(msg, l.x, l.y)
+	}
 	return nil
 }
 
 func (l *Layout) UpdateAll(msg tea.Msg) tea.Cmd {
-	return nil
+	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
+	for y := 0; y < l.rowCount; y++ {
+		for x := 0; x < l.colCount; x++ {
+			cmd = l.update(msg, x, y)
+			cmds = append(cmds, cmd)
+		}
+	}
+
+	return tea.Batch(cmds...)
 }
 
-func (l *Layout) GetActive() *LayoutModel {
-	return nil
+func (l *Layout) GetActive() *PositionalElement {
+	if l.colCount == 0 || l.rowCount == 0 {
+		return nil
+	}
+
+	el := l.get(l.x, l.y)
+
+	return &el
 }
 
 // Set active element
 func (l *Layout) SetActive(x, y int) {
-	// TODO
+	if curr := l.GetActive(); curr != nil {
+		el := curr.unsetActive()
+		l.set(l.x, l.y, el)
+	}
+
+	if x >= l.colCount || y >= l.rowCount {
+		fmt.Fprintf(os.Stderr, "index out of bound: tried accessing element (%d, %d)\n", x, y)
+		os.Exit(1)
+	}
+
+	next := l.get(x, y)
+	el := next.setActive()
+	l.set(x, y, el)
+
+	l.x, l.y = x, y
 }
 
 func (l *Layout) View() string {
@@ -97,3 +144,26 @@ func (l *Layout) NavigateRight() {}
 func (l *Layout) NavigateDown() {}
 
 func (l *Layout) NavigateLeft() {}
+
+func (l *Layout) get(x, y int) PositionalElement {
+	return l.rows[y].get(x)
+}
+
+func (l *Layout) set(x, y int, el PositionalElement) {
+	l.rows[y].set(x, el)
+}
+
+func (l *Layout) update(msg tea.Msg, x, y int) tea.Cmd {
+	el := l.get(x, y)
+
+	if el.model != nil {
+		teaModel, cmd := (*el.model).Update(msg)
+		layoutModel := teaModel.(LayoutModel)
+		el.model = &layoutModel
+		l.set(x, y, el)
+
+		return cmd
+	}
+
+	return nil
+}

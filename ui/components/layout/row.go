@@ -2,6 +2,7 @@ package layout
 
 import (
 	"fmt"
+	"iter"
 	"math"
 	"os"
 
@@ -39,6 +40,29 @@ func (r *Row) View() string {
 	)
 }
 
+func (r *Row) All() iter.Seq[PositionalElement] {
+	return func(yield func(PositionalElement) bool) {
+		for _, el := range r.elements {
+			if !yield(el) {
+				return
+			}
+		}
+	}
+}
+
+func (r *Row) NotNil() iter.Seq[PositionalElement] {
+	return func(yield func(PositionalElement) bool) {
+		for _, el := range r.elements {
+			if el.model == nil {
+				continue
+			}
+			if !yield(el) {
+				return
+			}
+		}
+	}
+}
+
 func (r *Row) calcWithPerAutoEl() int {
 	countAutoEl := 0
 	fixedWidth := 0
@@ -64,4 +88,12 @@ func (r *Row) calcWithPerAutoEl() int {
 func (r Row) setWidth(width int) Row {
 	r.width = width
 	return r
+}
+
+func (r Row) get(i int) PositionalElement {
+	return r.elements[i]
+}
+
+func (r *Row) set(i int, el PositionalElement) {
+	r.elements[i] = el
 }

@@ -142,3 +142,19 @@ func (p PositionalElement) view(widthPerAutoEl, rowWidth int) string {
 
 	return lipgloss.PlaceHorizontal(width, pos, content)
 }
+
+func (p PositionalElement) setActive() PositionalElement {
+	if p.model != nil {
+		m := (*p.model).SetActive()
+		p.model = &m
+	}
+	return p
+}
+
+func (p PositionalElement) unsetActive() PositionalElement {
+	if p.model != nil {
+		m := (*p.model).UnsetActive()
+		p.model = &m
+	}
+	return p
+}
