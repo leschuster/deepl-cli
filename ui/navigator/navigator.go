@@ -36,6 +36,22 @@ func New(matrix Matrix) Navigator {
 	}
 }
 
+func (n *Navigator) Init() tea.Cmd {
+	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
+	for _, row := range n.matrix {
+		for _, item := range row {
+			if item != nil {
+				cmd = (*item).Init()
+				cmds = append(cmds, cmd)
+			}
+		}
+	}
+
+	return tea.Batch(cmds...)
+}
+
 func (n *Navigator) Up() tea.Cmd {
 	xOld := n.pos.x
 	yOld := n.pos.y

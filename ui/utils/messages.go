@@ -24,3 +24,15 @@ type LoadedNewLanguagesMsg struct{}
 type SrcLangSelected struct {
 	Language deeplapi.Language
 }
+
+type EnteredInsertMode struct{}
+
+func EnteredInsertModeCmd() tea.Msg {
+	return EnteredInsertMode{}
+}
+
+type ExitedInsertMode struct{}
+
+func ExitedInsertModeCmd() tea.Msg {
+	return ExitedInsertMode{}
+}

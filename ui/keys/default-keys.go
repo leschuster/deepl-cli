@@ -8,6 +8,10 @@ func DefaultKeyMap() *KeyMap {
 			key.WithKeys("enter"),
 			key.WithHelp("enter", "select"),
 		),
+		Unselect: key.NewBinding(
+			key.WithKeys("esc"),
+			key.WithHelp("esc", "unselect"),
+		),
 
 		// Navigation
 		Up: key.NewBinding(

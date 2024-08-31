@@ -8,7 +8,8 @@ import (
 // Define key bindings
 type KeyMap struct {
 	// Select an option
-	Select key.Binding
+	Select   key.Binding
+	Unselect key.Binding
 
 	// Navigation
 	Up    key.Binding
