@@ -26,10 +26,9 @@ func (r *Row) GetLength() int {
 
 func (r *Row) View() string {
 	elementsRendered := []string{}
-	widthPerAutoEl := r.calcWithPerAutoEl()
 
 	for _, el := range r.elements {
-		if rendered := el.view(widthPerAutoEl, r.width); rendered != "" {
+		if rendered := el.view(); rendered != "" {
 			elementsRendered = append(elementsRendered, rendered)
 		}
 	}
@@ -63,15 +62,29 @@ func (r *Row) NotNil() iter.Seq[PositionalElement] {
 	}
 }
 
+func (r Row) setWidth(width int) Row {
+	r.width = width
+
+	widthPerAutoEl := r.calcWithPerAutoEl()
+	r.applyCalculatedWidths(widthPerAutoEl)
+
+	return r
+}
+
 func (r *Row) calcWithPerAutoEl() int {
 	countAutoEl := 0
 	fixedWidth := 0
 
 	for _, el := range r.elements {
-		if el.getType() == fillAuto {
+		switch el.getType() {
+		case empty:
+			continue
+		case fixed:
+			fixedWidth += el.widthFixed
+		case fill:
+			fixedWidth += int(math.Floor(el.widthFill * float64(r.width)))
+		case fillAuto:
 			countAutoEl++
-		} else {
-			fixedWidth += el.getFixedWidth(r.width)
 		}
 	}
 
@@ -85,9 +98,23 @@ func (r *Row) calcWithPerAutoEl() int {
 	return int(math.Floor(float64(availWidth) / float64(countAutoEl)))
 }
 
-func (r Row) setWidth(width int) Row {
-	r.width = width
-	return r
+func (r *Row) applyCalculatedWidths(widthPerAutoEl int) {
+	for i, el := range r.elements {
+		var res PositionalElement
+
+		switch el.getType() {
+		case empty:
+			res = el.setCalculatedWidth(0)
+		case fixed:
+			res = el.setCalculatedWidth(el.widthFixed)
+		case fill:
+			res = el.setCalculatedWidth(int(math.Floor(el.widthFill * float64(r.width))))
+		case fillAuto:
+			res = el.setCalculatedWidth(widthPerAutoEl)
+		}
+
+		r.set(i, res)
+	}
 }
 
 func (r Row) get(i int) PositionalElement {

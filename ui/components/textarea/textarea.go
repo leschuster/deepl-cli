@@ -76,11 +76,11 @@ func (m Model) UnsetActive() layout.LayoutModel {
 	return m
 }
 func (m Model) OnAvailWidthChange(width int) layout.LayoutModel {
-	m.textarea.SetWidth(width - 8)
+	m.textarea.SetWidth(width - 10)
 	return m
 }
 
 func (m *Model) Resize(width, height int) {
-	m.textarea.SetWidth(width)
-	m.textarea.SetHeight(height)
+	// m.textarea.SetWidth(width)
+	// m.textarea.SetHeight(height)
 }

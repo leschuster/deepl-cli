@@ -1,10 +1,6 @@
 package layout
 
 import (
-	"fmt"
-	"math"
-	"os"
-
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -24,12 +20,13 @@ const (
 )
 
 type PositionalElement struct {
-	elType     string // empty, fill, fixed
-	model      *LayoutModel
-	position   Position // Left, Center, Right
-	widthFixed int      // only for fixed width
-	widthFill  float64  // only for fill; fraction of how much space to take
-	selectable bool     // can the element be selected
+	elType          string // empty, fill, fixed
+	model           *LayoutModel
+	position        Position // Left, Center, Right
+	widthFixed      int      // only for fixed width
+	widthFill       float64  // only for fill; fraction of how much space to take
+	calculatedWidth int
+	selectable      bool // can the element be selected
 }
 
 // Empty element. Fill empty space in Layout.
@@ -91,36 +88,9 @@ func (p PositionalElement) getType() string {
 	return p.elType
 }
 
-func (p PositionalElement) getFixedWidth(rowWidth int) int {
-	switch p.elType {
-	case empty:
-		return 0
-	case fixed:
-		return p.widthFixed
-	case fill:
-		return int(math.Floor(float64(rowWidth) * p.widthFill))
-	case fillAuto:
-		fmt.Fprintf(os.Stderr, "Error: tried to get width of PositionalElement with type 'fillAuto'\n")
-		os.Exit(1)
-	default:
-		fmt.Fprintf(os.Stderr, "Error: tried to get width of PositionalElement with type '%s': type not recognized\n", p.elType)
-		os.Exit(1)
-	}
-
-	// Unreachable
-	return -1
-}
-
-func (p PositionalElement) view(widthPerAutoEl, rowWidth int) string {
+func (p PositionalElement) view() string {
 	if p.elType == empty {
 		return ""
-	}
-
-	var width int
-	if p.elType == fillAuto {
-		width = widthPerAutoEl
-	} else {
-		width = p.getFixedWidth(rowWidth)
 	}
 
 	var pos lipgloss.Position
@@ -140,7 +110,7 @@ func (p PositionalElement) view(widthPerAutoEl, rowWidth int) string {
 		content = (*p.model).View()
 	}
 
-	return lipgloss.PlaceHorizontal(width, pos, content)
+	return lipgloss.PlaceHorizontal(p.calculatedWidth, pos, content)
 }
 
 func (p PositionalElement) setActive() PositionalElement {
@@ -154,6 +124,15 @@ func (p PositionalElement) setActive() PositionalElement {
 func (p PositionalElement) unsetActive() PositionalElement {
 	if p.model != nil {
 		m := (*p.model).UnsetActive()
+		p.model = &m
+	}
+	return p
+}
+
+func (p PositionalElement) setCalculatedWidth(width int) PositionalElement {
+	p.calculatedWidth = width
+	if p.model != nil {
+		m := (*p.model).OnAvailWidthChange(width)
 		p.model = &m
 	}
 	return p
