@@ -54,9 +54,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	style := m.ctx.Styles.Textarea.Style
+	fn := m.ctx.Styles.Textarea.Style.Render
 
-	return style.Render(m.textarea.View())
+	if m.active {
+		fn = m.ctx.Styles.Textarea.ActiveStyle.Render
+	}
+
+	return fn(m.textarea.View())
 }
 
 // Implement NavModal interface

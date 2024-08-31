@@ -1,6 +1,8 @@
-package languagebutton
+package button
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/leschuster/deepl-cli/ui/context"
@@ -9,15 +11,17 @@ import (
 
 type Model struct {
 	ctx    *context.ProgramContext
-	title  string
+	label  string
+	text   string
 	active bool
 	cmd    tea.Cmd
 }
 
-func InitialModel(ctx *context.ProgramContext, title string, onClick tea.Cmd) Model {
+func InitialModel(ctx *context.ProgramContext, label, text string, onClick tea.Cmd) Model {
 	return Model{
 		ctx:   ctx,
-		title: title,
+		label: label,
+		text:  text,
 		cmd:   onClick,
 	}
 }
@@ -41,13 +45,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	fn := m.ctx.Styles.LanguageButton.Style.Render
+	fn := m.ctx.Styles.Button.Style.Render
 
 	if m.active {
-		fn = m.ctx.Styles.LanguageButton.HoveredStyle.Render
+		fn = m.ctx.Styles.Button.ActiveStyle.Render
 	}
 
-	return fn(m.title)
+	return fmt.Sprintf("%s: %s", m.label, fn(m.text))
+}
+
+func (m *Model) SetLabel(label string) {
+	m.label = label
+}
+
+func (m *Model) SetText(text string) {
+	m.text = text
 }
 
 // Implement NavModal interface

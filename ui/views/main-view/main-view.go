@@ -3,7 +3,7 @@ package mainview
 import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	languagebutton "github.com/leschuster/deepl-cli/ui/components/language-button"
+	"github.com/leschuster/deepl-cli/ui/components/button"
 	"github.com/leschuster/deepl-cli/ui/components/textarea"
 	"github.com/leschuster/deepl-cli/ui/context"
 	"github.com/leschuster/deepl-cli/ui/navigator"
@@ -18,8 +18,8 @@ type Model struct {
 
 func InitialModel(ctx *context.ProgramContext) Model {
 	var srcLangBtn, tarLangBtn navigator.NavModal
-	srcLangBtn = languagebutton.InitialModel(ctx, "Source Language", onSrcLangBtnClick)
-	tarLangBtn = languagebutton.InitialModel(ctx, "Target Language", onTarLangBtnClick)
+	srcLangBtn = button.InitialModel(ctx, "Source Language", "AUTO", onSrcLangBtnClick)
+	tarLangBtn = button.InitialModel(ctx, "Target Language", "Select", onTarLangBtnClick)
 
 	var srcTextArea, tarTextArea navigator.NavModal
 	srcTextArea = textarea.InitialModel(ctx, "Type to translate.", false)
