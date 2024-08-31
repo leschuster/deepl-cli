@@ -38,7 +38,7 @@ func InitialModel(ctx *context.ProgramContext) Model {
 		),
 		layout.NewRow(
 			layout.FillAuto(&srcTextArea, layout.Left),
-			layout.Fixed(nil, 6).NotSelectable(),
+			layout.Fixed(nil, layout.Center, 6).NotSelectable(),
 			layout.FillAuto(&tarTextArea, layout.Left),
 			layout.Empty(),
 		),

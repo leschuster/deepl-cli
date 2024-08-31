@@ -51,7 +51,12 @@ func (m Model) View() string {
 		fn = m.ctx.Styles.Button.ActiveStyle.Render
 	}
 
-	return fmt.Sprintf("%s: %s", m.label, fn(m.text))
+	label := ""
+	if m.label != "" {
+		label = fmt.Sprintf("%s: ", m.label)
+	}
+
+	return fmt.Sprintf("%s%s", label, fn(m.text))
 }
 
 func (m *Model) SetLabel(label string) {

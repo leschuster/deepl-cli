@@ -7,19 +7,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const (
-	Left   = "left"
-	Center = "center"
-	Right  = "right"
-)
-
-const (
-	empty    = "empty"
-	fill     = "fill"
-	fillAuto = "fill-auto"
-	fixed    = "fixed"
-)
-
 type Layout struct {
 	rows                      []Row
 	screenWidth, screenHeight int
@@ -95,6 +82,10 @@ func (l *Layout) View() string {
 
 func (l *Layout) Resize(width, height int) {
 	l.screenWidth, l.screenHeight = width, height
+
+	for i, row := range l.rows {
+		l.rows[i] = row.setWidth(width)
+	}
 }
 
 func (l *Layout) NavigateUp() {
