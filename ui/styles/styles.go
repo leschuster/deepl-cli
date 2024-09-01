@@ -25,6 +25,10 @@ type Styles struct {
 		ActiveStyle lipgloss.Style
 	}
 
+	TextareaDelimiter struct {
+		Style lipgloss.Style
+	}
+
 	LanguageSelect struct {
 		PromptStyle lipgloss.Style
 		CursorStyle lipgloss.Style
@@ -38,6 +42,10 @@ type Styles struct {
 	}
 
 	LangView struct {
+		Style lipgloss.Style
+	}
+
+	MainView struct {
 		Style lipgloss.Style
 	}
 
@@ -61,16 +69,16 @@ func New() *Styles {
 	s.Colors.ButtonActiveBackground = s.Colors.Active
 
 	s.Textarea.Style = lipgloss.NewStyle().
-		Padding(1, 2).
-		Border(lipgloss.RoundedBorder()).
-		Margin(2, 2)
+		Margin(2, 0)
 
 	s.Textarea.ActiveStyle = lipgloss.NewStyle().
-		BorderForeground(s.Colors.Active).
+		Border(lipgloss.HiddenBorder(), false, false, false, true).
+		BorderBackground(s.Colors.Active).
 		Inherit(s.Textarea.Style).
-		Padding(1, 2).
-		Border(lipgloss.RoundedBorder()).
-		Margin(2, 2)
+		Margin(2, 0)
+
+	s.TextareaDelimiter.Style = lipgloss.NewStyle().
+		Margin(2, 0)
 
 	s.List.Style = list.DefaultStyles()
 	s.List.Style.TitleBar.Align(lipgloss.Center)
@@ -93,6 +101,9 @@ func New() *Styles {
 		Padding(1, 2).
 		Border(lipgloss.NormalBorder()).
 		BorderBackground(lipgloss.Color("62"))
+
+	s.MainView.Style = lipgloss.NewStyle().
+		Margin(2, 2)
 
 	s.Button.Style = lipgloss.NewStyle().
 		Padding(0, 2).

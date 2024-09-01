@@ -19,6 +19,7 @@ type Model struct {
 func InitialModel(ctx *context.ProgramContext, placeholder string, readonly bool) Model {
 	ti := textarea.New()
 	ti.Placeholder = placeholder
+	ti.Prompt = ""
 	ti.Blur()
 
 	return Model{
@@ -37,6 +38,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		textareaHeight := msg.Height - 20
+		m.textarea.SetHeight(textareaHeight)
+
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.ctx.Keys.Select) && m.active:
@@ -78,9 +83,4 @@ func (m Model) UnsetActive() layout.LayoutModel {
 func (m Model) OnAvailWidthChange(width int) layout.LayoutModel {
 	m.textarea.SetWidth(width - 10)
 	return m
-}
-
-func (m *Model) Resize(width, height int) {
-	// m.textarea.SetWidth(width)
-	// m.textarea.SetHeight(height)
 }
