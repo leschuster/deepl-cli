@@ -1,4 +1,4 @@
-package tarlangview
+package formalityview
 
 import (
 	"github.com/charmbracelet/bubbles/key"
@@ -12,22 +12,35 @@ import (
 
 type Model struct {
 	ctx  *context.ProgramContext
-	list list.Model[deeplapi.Language]
+	list list.Model[string]
 }
 
 func InitialModel(ctx *context.ProgramContext) Model {
+	li := list.InitialModel[string](ctx, "Select Formality:")
+
+	formalities := []string{
+		deeplapi.FormalityLess,
+		deeplapi.FormalityPreferLess,
+		deeplapi.FormalityDefault,
+		deeplapi.FormalityPreferMore,
+		deeplapi.FormalityMore,
+	}
+
+	items := make([]list.Item[string], len(formalities))
+	for i, form := range formalities {
+		items[i] = list.NewItem(form, "", form)
+	}
+
+	li.SetItems(items)
+
 	return Model{
 		ctx:  ctx,
-		list: list.InitialModel[deeplapi.Language](ctx, "Select Target Language:"),
+		list: li,
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	cmds := []tea.Cmd{
-		m.ctx.AvailableLanguages.LoadInitial(), // Load available languages
-	}
-
-	return tea.Batch(cmds...)
+	return nil
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -41,30 +54,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.ctx.Keys.Select):
-			// User selected a language
+			// User selected a formality
 			item, ok := m.list.GetSelected()
 			if !ok || item == nil {
 				return m, nil
 			}
 
-			return m, com.TarLangSelectedCmd((*item).Data())
+			return m, com.FormalitySelectedCmd((*item).Data())
 		}
-
-	case com.APILanguagesReceivedMsg:
-		langs, err := m.ctx.AvailableLanguages.GetTargetLanguages()
-		if err != nil {
-			return m, com.ThrowErr(err)
-		}
-
-		items := make([]list.Item[deeplapi.Language], len(langs))
-		for i, lang := range langs {
-			items[i] = list.NewItem(lang.Name, lang.Language, lang)
-		}
-		m.list.SetItems(items)
 	}
 
 	l, cmd := m.list.Update(msg)
-	m.list = l.(list.Model[deeplapi.Language])
+	m.list = l.(list.Model[string])
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)

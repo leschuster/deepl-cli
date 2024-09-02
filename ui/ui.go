@@ -8,9 +8,11 @@ import (
 	deeplapi "github.com/leschuster/deepl-cli/pkg/deepl-api"
 	"github.com/leschuster/deepl-cli/ui/com"
 	"github.com/leschuster/deepl-cli/ui/context"
+	formalityview "github.com/leschuster/deepl-cli/ui/views/formality-view"
 	loginview "github.com/leschuster/deepl-cli/ui/views/login-view"
 	mainview "github.com/leschuster/deepl-cli/ui/views/main-view"
 	srclangview "github.com/leschuster/deepl-cli/ui/views/src-lang-view"
+	tarlangview "github.com/leschuster/deepl-cli/ui/views/tar-lang-view"
 )
 
 type ViewIdx int
@@ -38,8 +40,8 @@ func InitialModel(api *deeplapi.DeeplAPI) Model {
 	views := []tea.Model{
 		mainview.InitialModel(ctx),
 		srclangview.InitialModel(ctx),
-		srclangview.InitialModel(ctx),
-		srclangview.InitialModel(ctx),
+		tarlangview.InitialModel(ctx),
+		formalityview.InitialModel(ctx),
 		loginview.InitialModel(ctx),
 	}
 
