@@ -9,7 +9,7 @@ import (
 
 type ProgramContext struct {
 	Api                *deeplapi.DeeplAPI
-	Keys               *keys.KeyMap
+	Keys               keys.KeyMap
 	ScreenWidth        int
 	ScreenHeight       int
 	Styles             *styles.Styles

@@ -40,6 +40,20 @@ type KeyMap struct {
 	ForceQuit key.Binding
 }
 
+func (k KeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{
+		k.Select, k.Unselect, k.Up, k.Down, k.Right, k.Left, k.ShowFullHelp, k.Quit,
+	}
+}
+
+func (k KeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		{k.Select, k.Unselect, k.CloseFullHelp, k.Quit},
+		{k.Up, k.Down, k.Right, k.Left},
+		{k.NextPage, k.PrevPage, k.Filter, k.ClearFilter},
+	}
+}
+
 func (k *KeyMap) ConvertToListKeyMap() list.KeyMap {
 	return list.KeyMap{
 		CursorUp:             k.Up,

@@ -2,8 +2,8 @@ package keys
 
 import "github.com/charmbracelet/bubbles/key"
 
-func DefaultKeyMap() *KeyMap {
-	return &KeyMap{
+func DefaultKeyMap() KeyMap {
+	return KeyMap{
 		Select: key.NewBinding(
 			key.WithKeys("enter"),
 			key.WithHelp("enter", "select"),
