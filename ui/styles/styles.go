@@ -53,6 +53,11 @@ type Styles struct {
 		Style       lipgloss.Style
 		ActiveStyle lipgloss.Style
 	}
+
+	Topbar struct {
+		Style                       lipgloss.Style
+		LeftSide, RightSide, Spacer lipgloss.Style
+	}
 }
 
 func New() *Styles {
@@ -116,6 +121,23 @@ func New() *Styles {
 		Foreground(s.Colors.ButtonActiveForeground).
 		Background(s.Colors.ButtonActiveBackground).
 		Inherit(s.Button.Style)
+
+	s.Topbar.Style = lipgloss.NewStyle().
+		MarginBottom(1)
+
+	s.Topbar.LeftSide = lipgloss.NewStyle().
+		Align(lipgloss.Left).
+		Padding(0, 1).
+		Background(s.Colors.Primary).
+		Foreground(s.Colors.Text)
+
+	s.Topbar.RightSide = lipgloss.NewStyle().
+		Align(lipgloss.Right).
+		Padding(0, 1).
+		Background(s.Colors.Primary).
+		Foreground(s.Colors.Text)
+
+	s.Topbar.Spacer = lipgloss.NewStyle()
 
 	return &s
 }
