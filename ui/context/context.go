@@ -15,6 +15,7 @@ type ProgramContext struct {
 	Styles             *styles.Styles
 	SourceLanguage     *deeplapi.Language
 	TargetLanguage     *deeplapi.Language
+	Formality          string
 	AvailableLanguages utils.AvailableLanguages
 }
 

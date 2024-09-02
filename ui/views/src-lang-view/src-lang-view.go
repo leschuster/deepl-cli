@@ -1,15 +1,13 @@
 package srclangview
 
 import (
-	"strings"
-
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	deeplapi "github.com/leschuster/deepl-cli/pkg/deepl-api"
+	"github.com/leschuster/deepl-cli/ui/com"
 	"github.com/leschuster/deepl-cli/ui/components/list"
 	"github.com/leschuster/deepl-cli/ui/context"
-	"github.com/leschuster/deepl-cli/ui/utils"
 )
 
 type Model struct {
@@ -26,7 +24,7 @@ func InitialModel(ctx *context.ProgramContext) Model {
 
 func (m Model) Init() tea.Cmd {
 	cmds := []tea.Cmd{
-		m.ctx.AvailableLanguages.LoadInitial, // Load available languages
+		m.ctx.AvailableLanguages.LoadInitial(), // Load available languages
 	}
 
 	return tea.Batch(cmds...)
@@ -38,20 +36,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.list.Resize(m.calcListSize())
+		w, h := m.calcListSize()
+		m.list.Resize(w, h)
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.ctx.Keys.Select):
-			return m, m.onSelect
+			// User selected a language
+			item, ok := m.list.GetSelected()
+			if !ok || item == nil {
+				return m, nil
+			}
+
+			return m, com.SrcLangSelectedCmd((*item).Data())
 		}
 
-	case utils.LoadedNewLanguagesMsg:
+	case com.APILanguagesReceivedMsg:
 		langs, err := m.ctx.AvailableLanguages.GetSourceLanguages()
 		if err != nil {
-			cmd = utils.ErrCmd(
-				utils.ErrMsg{Err: err},
-			)
-			return m, cmd
+			return m, com.ThrowErr(err)
 		}
 
 		items := make([]list.Item[deeplapi.Language], len(langs))
@@ -69,29 +71,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	doc := strings.Builder{}
 	style := m.ctx.Styles.LangView.Style
 
-	doc.WriteString(
-		style.Render(m.list.View()),
-	)
+	content := style.Render(m.list.View())
 
+	// Place content in the center of the screen
 	return lipgloss.Place(
 		m.ctx.ScreenWidth, m.ctx.ScreenHeight,
 		lipgloss.Center, lipgloss.Center,
-		doc.String(),
+		content,
+		lipgloss.WithWhitespaceChars(" "),
 	)
-}
-
-func (m *Model) onSelect() tea.Msg {
-	item, ok := m.list.GetSelected()
-	if !ok {
-		return nil
-	}
-
-	return utils.SrcLangSelected{
-		Language: item.Data(),
-	}
 }
 
 func (m *Model) calcListSize() (width, height int) {

@@ -6,25 +6,27 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	deeplapi "github.com/leschuster/deepl-cli/pkg/deepl-api"
+	"github.com/leschuster/deepl-cli/ui/com"
 	"github.com/leschuster/deepl-cli/ui/context"
-	"github.com/leschuster/deepl-cli/ui/utils"
+	loginview "github.com/leschuster/deepl-cli/ui/views/login-view"
 	mainview "github.com/leschuster/deepl-cli/ui/views/main-view"
 	srclangview "github.com/leschuster/deepl-cli/ui/views/src-lang-view"
 )
 
+type ViewIdx int
+
 const (
-	mainViewIdx = iota
+	mainViewIdx ViewIdx = iota
 	srcLangViewIdx
 	tarLangViewIdx
+	formalityViewIdx
 	loginViewIdx
 )
-
-type index int
 
 type Model struct {
 	ctx      *context.ProgramContext
 	views    []tea.Model
-	currView index
+	currView ViewIdx
 	err      error
 	loaded   bool
 	quitting bool
@@ -33,10 +35,12 @@ type Model struct {
 func InitialModel(api *deeplapi.DeeplAPI) Model {
 	ctx := context.New(api)
 
-	// TODO
 	views := []tea.Model{
 		mainview.InitialModel(ctx),
 		srclangview.InitialModel(ctx),
+		srclangview.InitialModel(ctx),
+		srclangview.InitialModel(ctx),
+		loginview.InitialModel(ctx),
 	}
 
 	return Model{
@@ -47,7 +51,12 @@ func InitialModel(api *deeplapi.DeeplAPI) Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return nil
+	cmds := []tea.Cmd{
+		tea.SetWindowTitle("DeepL CLI (Unofficial)"), // Set Title
+		m.views[m.currView].Init(),                   // Initialize active view
+	}
+
+	return tea.Batch(cmds...)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -56,9 +65,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 
-	// Did a custom error occur?
-	case utils.ErrMsg:
+	// Did an error occur?
+	case com.Err:
 		m.err = msg.Err
+		fmt.Fprintf(os.Stderr, "Error: %v\n", msg.Err)
 		return m, tea.Quit
 
 	// Did the window size change?
@@ -82,20 +92,33 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			m.quitting = true
 			return m, tea.Quit
-		case "1":
-			m.currView = mainViewIdx
-
-			cmds = append(cmds, m.views[m.currView].Init())
-
-			return m, tea.Batch(cmds...)
-		case "2":
-			m.currView = srcLangViewIdx
+		case "4":
+			m.currView = loginViewIdx
 			return m, m.views[m.currView].Init()
 		}
 
-	// Did the user select a source language?
-	case utils.SrcLangSelected:
+	case com.SrcLangBtnSelectedMsg:
+		m.currView = srcLangViewIdx
+		return m, m.views[m.currView].Init()
+
+	case com.SrcLangSelectedMsg:
 		m.ctx.SourceLanguage = &msg.Language
+		m.currView = mainViewIdx
+
+	case com.TarLangBtnSelectedMsg:
+		m.currView = tarLangViewIdx
+		return m, m.views[m.currView].Init()
+
+	case com.TarLangSelectedMsg:
+		m.ctx.TargetLanguage = &msg.Language
+		m.currView = mainViewIdx
+
+	case com.FormalityBtnSelectedMsg:
+		m.currView = formalityViewIdx
+		return m, m.views[m.currView].Init()
+
+	case com.FormalitySelectedMsg:
+		m.ctx.Formality = msg.Formality
 		m.currView = mainViewIdx
 	}
 
@@ -122,11 +145,13 @@ func (m Model) View() string {
 	return m.views[m.currView].View()
 }
 
+// Start and show the user interface
 func Run(api *deeplapi.DeeplAPI) {
+	// Create a new program occupying the whole screen
 	p := tea.NewProgram(InitialModel(api), tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {
-		fmt.Printf("There has been an error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "There has been an error: %v\n", err)
 		os.Exit(1)
 	}
 }

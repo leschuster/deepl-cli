@@ -17,14 +17,15 @@ type Layout struct {
 	}
 }
 
-func NewLayout(rows ...Row) (*Layout, error) {
+func NewLayout(rows ...Row) *Layout {
 	// Check for equal row lenghts
 	if len(rows) > 0 {
 		length := rows[0].GetLength()
 
 		for _, r := range rows {
 			if length != r.GetLength() {
-				return nil, fmt.Errorf("rows must all have the same number of elements")
+				fmt.Fprintf(os.Stderr, "Error in Layout definition: rows must all have the same number of elements\n")
+				os.Exit(1)
 			}
 		}
 	}
@@ -42,7 +43,7 @@ func NewLayout(rows ...Row) (*Layout, error) {
 		rows:     rows,
 		colCount: colCount,
 		rowCount: rowCount,
-	}, nil
+	}
 }
 
 func (l *Layout) Init() tea.Cmd {

@@ -3,27 +3,36 @@ package mainview
 import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/leschuster/deepl-cli/ui/components/button"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/leschuster/deepl-cli/ui/com"
+	formalitybtn "github.com/leschuster/deepl-cli/ui/components/button/formality-btn"
+	srclangbtn "github.com/leschuster/deepl-cli/ui/components/button/src-lang-btn"
+	tarlangbtn "github.com/leschuster/deepl-cli/ui/components/button/tar-lang-btn"
+	translatebtn "github.com/leschuster/deepl-cli/ui/components/button/translate-btn"
+	"github.com/leschuster/deepl-cli/ui/components/help"
 	"github.com/leschuster/deepl-cli/ui/components/layout"
 	"github.com/leschuster/deepl-cli/ui/components/textarea"
 	textareadelimiter "github.com/leschuster/deepl-cli/ui/components/textarea-delimiter"
+	"github.com/leschuster/deepl-cli/ui/components/topbar"
 	"github.com/leschuster/deepl-cli/ui/context"
-	"github.com/leschuster/deepl-cli/ui/utils"
 )
 
 type Model struct {
 	ctx                      *context.ProgramContext
 	lay                      *layout.Layout
 	insertMode               bool
+	topbar                   topbar.Model
+	help                     help.Model
 	srcTextArea, tarTextArea textarea.Model
 	textareaDelimiter        textareadelimiter.Model
 }
 
 func InitialModel(ctx *context.ProgramContext) Model {
-	var srcLangBtn, tarLangBtn, formalityBth layout.LayoutModel
-	srcLangBtn = button.InitialModel(ctx, "Source Language", "auto", onSrcLangBtnClick)
-	tarLangBtn = button.InitialModel(ctx, "Target Language", "SELECT", onTarLangBtnClick)
-	formalityBth = button.InitialModel(ctx, "Formality", "default", onFormalityBtnClick)
+	var srcLangBtn, tarLangBtn, formalityBtn, translateBtn layout.LayoutModel
+	srcLangBtn = srclangbtn.InitialModel(ctx)
+	tarLangBtn = tarlangbtn.InitialModel(ctx)
+	formalityBtn = formalitybtn.InitialModel(ctx)
+	translateBtn = translatebtn.InitialModel(ctx)
 
 	srcTextArea := textarea.InitialModel(ctx, "Type to translate.", false)
 	tarTextArea := textarea.InitialModel(ctx, "", true)
@@ -34,15 +43,13 @@ func InitialModel(ctx *context.ProgramContext) Model {
 	tarTextAreaLay = tarTextArea
 	delimiterLay = delimiter
 
-	var translateBtn layout.LayoutModel
-	translateBtn = button.InitialModel(ctx, "", "Translate", onTranslateBtnClick)
-
-	lay, err := layout.NewLayout(
+	// Define the general structure of the view
+	lay := layout.NewLayout(
 		layout.NewRow(
 			layout.Fill(&srcLangBtn, layout.Left, 0.5),
-			layout.Empty(),
+			layout.Empty(), // Each row needs to have the same amount of elements
 			layout.Fill(&tarLangBtn, layout.Left, 0.25),
-			layout.Fill(&formalityBth, layout.Right, 0.25),
+			layout.Fill(&formalityBtn, layout.Right, 0.25),
 		),
 		layout.NewRow(
 			layout.FillAuto(&srcTextAreaLay, layout.Left),
@@ -57,13 +64,12 @@ func InitialModel(ctx *context.ProgramContext) Model {
 			layout.Empty(),
 		),
 	)
-	if err != nil {
-		// TODO
-	}
 
 	return Model{
 		ctx:               ctx,
 		lay:               lay,
+		topbar:            topbar.InitialModel(ctx),
+		help:              help.InitialModel(ctx, 8),
 		srcTextArea:       srcTextArea,
 		tarTextArea:       tarTextArea,
 		textareaDelimiter: delimiter,
@@ -75,18 +81,24 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
+		t, cmd := m.topbar.Update(msg)
+		m.topbar = t.(topbar.Model)
+		cmds = append(cmds, cmd)
+
 		m.lay.Resize(msg.Width-4, msg.Height)
-		return m, m.lay.UpdateAll(msg)
-	case utils.EnteredInsertMode:
+	case com.InsertModeEnteredMsg:
 		m.insertMode = true
-	case utils.ExitedInsertMode:
+	case com.InsertModeExitedMsg:
 		m.insertMode = false
 	case tea.KeyMsg:
+		h, cmd := m.help.Update(msg)
+		m.help = h.(help.Model)
+		cmds = append(cmds, cmd)
+
 		switch {
 		case m.insertMode:
 			// Ignore Keystrokes
@@ -99,31 +111,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.ctx.Keys.Left):
 			m.lay.NavigateLeft()
 		}
+
+		// In the case of a key-press, we only want the
+		// message to be forwarded to the active element
+		cmds = append(cmds, m.lay.UpdateActive(msg))
+		return m, tea.Batch(cmds...)
 	}
 
-	cmd = m.lay.UpdateActive(msg)
-	cmds = append(cmds, cmd)
+	// In general, all components should receive the message
+	cmds = append(cmds, m.lay.UpdateAll(msg))
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
 	style := m.ctx.Styles.MainView.Style
-	return style.Render(m.lay.View())
-}
 
-func onSrcLangBtnClick() tea.Msg {
-	return nil
-}
-
-func onTarLangBtnClick() tea.Msg {
-	return nil
-}
-
-func onTranslateBtnClick() tea.Msg {
-	return nil
-}
-
-func onFormalityBtnClick() tea.Msg {
-	return nil
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		m.topbar.View(),
+		style.Render(m.lay.View()),
+		m.help.View(),
+	)
 }

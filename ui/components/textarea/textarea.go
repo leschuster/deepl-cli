@@ -4,9 +4,9 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/leschuster/deepl-cli/ui/com"
 	"github.com/leschuster/deepl-cli/ui/components/layout"
 	"github.com/leschuster/deepl-cli/ui/context"
-	"github.com/leschuster/deepl-cli/ui/utils"
 )
 
 type Model struct {
@@ -46,10 +46,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, m.ctx.Keys.Select) && m.active:
 			m.textarea.Focus()
-			cmds = append(cmds, utils.EnteredInsertModeCmd)
+			cmds = append(cmds, com.InsertModeEnteredCmd())
 		case key.Matches(msg, m.ctx.Keys.Unselect):
 			m.textarea.Blur()
-			cmds = append(cmds, utils.ExitedInsertModeCmd)
+			cmds = append(cmds, com.InsertModeExitedCmd())
 		}
 	}
 

@@ -45,6 +45,10 @@ type Styles struct {
 		Style lipgloss.Style
 	}
 
+	LoginView struct {
+		Style lipgloss.Style
+	}
+
 	MainView struct {
 		Style lipgloss.Style
 	}
@@ -106,6 +110,11 @@ func New() *Styles {
 		Padding(1, 2).
 		Border(lipgloss.NormalBorder()).
 		BorderBackground(lipgloss.Color("62"))
+
+	s.LoginView.Style = lipgloss.NewStyle().
+		Padding(1, 2).
+		Border(lipgloss.RoundedBorder()).
+		Foreground(s.Colors.Text)
 
 	s.MainView.Style = lipgloss.NewStyle().
 		Margin(2, 2)

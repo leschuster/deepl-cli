@@ -3,26 +3,24 @@ package button
 import (
 	"fmt"
 
-	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/leschuster/deepl-cli/ui/components/layout"
 	"github.com/leschuster/deepl-cli/ui/context"
 )
 
+// Provides a base button compontent
 type Model struct {
-	ctx    *context.ProgramContext
-	label  string
-	text   string
-	active bool
-	cmd    tea.Cmd
+	ctx         *context.ProgramContext
+	label, text string
+	active      bool
 }
 
-func InitialModel(ctx *context.ProgramContext, label, text string, onClick tea.Cmd) Model {
+// Get a new button
+func InitialModel(ctx *context.ProgramContext, label, text string) Model {
 	return Model{
 		ctx:   ctx,
 		label: label,
 		text:  text,
-		cmd:   onClick,
 	}
 }
 
@@ -31,17 +29,10 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmds []tea.Cmd
+	//! This is a base component. To implement logic
+	//! please use a wrapper component.
 
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, m.ctx.Keys.Select):
-			return nil, m.cmd
-		}
-	}
-
-	return m, tea.Batch(cmds...)
+	return m, nil
 }
 
 func (m Model) View() string {
@@ -68,6 +59,7 @@ func (m *Model) SetText(text string) {
 }
 
 // Implement LayoutModel interface
+
 func (m Model) IsActive() bool {
 	return m.active
 }

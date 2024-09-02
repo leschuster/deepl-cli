@@ -6,6 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	deeplapi "github.com/leschuster/deepl-cli/pkg/deepl-api"
+	"github.com/leschuster/deepl-cli/ui/com"
 )
 
 type AvailableLanguages struct {
@@ -22,7 +23,7 @@ func NewAvailableLanguages(api *deeplapi.DeeplAPI) AvailableLanguages {
 	}
 }
 
-func (al *AvailableLanguages) LoadInitial() tea.Msg {
+func (al *AvailableLanguages) LoadInitial() tea.Cmd {
 	al.mu.Lock()
 	defer al.mu.Unlock()
 
@@ -33,13 +34,13 @@ func (al *AvailableLanguages) LoadInitial() tea.Msg {
 
 	resp, err := al.api.GetLanguages()
 	if err != nil {
-		return ErrMsg{Err: err}
+		return com.ThrowErr(err)
 	}
 
 	al.srcLangs = resp.Source
 	al.tarLangs = resp.Target
 
-	return LoadedNewLanguagesMsg{}
+	return com.APILanguagesReceivedCmd()
 }
 
 func (al *AvailableLanguages) GetSourceLanguages() ([]deeplapi.Language, error) {
