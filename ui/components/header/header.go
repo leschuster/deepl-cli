@@ -1,4 +1,4 @@
-package topbar
+package header
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
