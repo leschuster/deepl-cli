@@ -26,6 +26,23 @@ func ThrowErr(err error) func() tea.Msg {
 	}
 }
 
+// Describes that the size of the content viewport changed
+// Difference to tea.WindowSizeMsg: this one contains the screen height substracted
+// by header and footer height, and the screen width substracted by global margins
+type ContentSizeMsg struct {
+	Width, Height int
+}
+
+// Command to trogger ContentSizeMsg
+func ContentSizeCmd(width, height int) func() tea.Msg {
+	return func() tea.Msg {
+		return ContentSizeMsg{
+			Width:  width,
+			Height: height,
+		}
+	}
+}
+
 // Describes the action the of the user selecting a source language
 type SrcLangSelectedMsg struct {
 	Language deeplapi.Language
