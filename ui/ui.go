@@ -141,6 +141,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, m.views[m.currView].Init()
 		}
 
+	case com.APIKeySaved:
+		m.currView = mainViewIdx
+
 	case com.SrcLangBtnSelectedMsg:
 		m.currView = srcLangViewIdx
 		return m, m.views[m.currView].Init()

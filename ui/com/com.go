@@ -166,3 +166,6 @@ func APITranslationReceivedCmd() func() tea.Msg {
 		return APITranslationReceivedMsg{}
 	}
 }
+
+// Describes that the API key of the user was securely saved
+type APIKeySaved struct{}
