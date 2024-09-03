@@ -11,8 +11,9 @@ import (
 )
 
 type Model struct {
-	ctx  *context.ProgramContext
-	list list.Model[string]
+	ctx                         *context.ProgramContext
+	list                        list.Model[string]
+	contentWidth, contentHeight int
 }
 
 func InitialModel(ctx *context.ProgramContext) Model {
@@ -48,7 +49,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
+	case com.ContentSizeMsg:
+		m.contentWidth, m.contentHeight = msg.Width, msg.Height
 		w, h := m.calcListSize()
 		m.list.Resize(w, h)
 	case tea.KeyMsg:
@@ -78,7 +80,7 @@ func (m Model) View() string {
 
 	// Place content in the center of the screen
 	return lipgloss.Place(
-		m.ctx.ScreenWidth, m.ctx.ScreenHeight,
+		m.contentWidth, m.contentHeight,
 		lipgloss.Center, lipgloss.Center,
 		content,
 		lipgloss.WithWhitespaceChars(" "),
@@ -86,7 +88,7 @@ func (m Model) View() string {
 }
 
 func (m *Model) calcListSize() (width, height int) {
-	width = min(42, m.ctx.ScreenWidth)
-	height = max(10, int(0.75*float32(m.ctx.ScreenHeight))-4)
+	width = min(42, m.contentWidth)
+	height = max(10, int(0.75*float32(m.contentHeight))-4)
 	return
 }

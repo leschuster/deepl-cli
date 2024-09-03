@@ -3,28 +3,22 @@ package mainview
 import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/leschuster/deepl-cli/ui/com"
 	formalitybtn "github.com/leschuster/deepl-cli/ui/components/button/formality-btn"
 	srclangbtn "github.com/leschuster/deepl-cli/ui/components/button/src-lang-btn"
 	tarlangbtn "github.com/leschuster/deepl-cli/ui/components/button/tar-lang-btn"
 	translatebtn "github.com/leschuster/deepl-cli/ui/components/button/translate-btn"
-	"github.com/leschuster/deepl-cli/ui/components/help"
 	"github.com/leschuster/deepl-cli/ui/components/layout"
-	"github.com/leschuster/deepl-cli/ui/components/textarea"
 	textareadelimiter "github.com/leschuster/deepl-cli/ui/components/textarea-delimiter"
-	"github.com/leschuster/deepl-cli/ui/components/topbar"
+	srctextarea "github.com/leschuster/deepl-cli/ui/components/textarea/src-textarea"
+	tartextarea "github.com/leschuster/deepl-cli/ui/components/textarea/tar-textarea"
 	"github.com/leschuster/deepl-cli/ui/context"
 )
 
 type Model struct {
-	ctx                      *context.ProgramContext
-	lay                      *layout.Layout
-	insertMode               bool
-	topbar                   topbar.Model
-	help                     help.Model
-	srcTextArea, tarTextArea textarea.Model
-	textareaDelimiter        textareadelimiter.Model
+	ctx        *context.ProgramContext
+	lay        *layout.Layout
+	insertMode bool
 }
 
 func InitialModel(ctx *context.ProgramContext) Model {
@@ -34,14 +28,10 @@ func InitialModel(ctx *context.ProgramContext) Model {
 	formalityBtn = formalitybtn.InitialModel(ctx)
 	translateBtn = translatebtn.InitialModel(ctx)
 
-	srcTextArea := textarea.InitialModel(ctx, "Type to translate.", false)
-	tarTextArea := textarea.InitialModel(ctx, "", true)
-	delimiter := textareadelimiter.InitialModel(ctx)
-
-	var srcTextAreaLay, tarTextAreaLay, delimiterLay layout.LayoutModel
-	srcTextAreaLay = srcTextArea
-	tarTextAreaLay = tarTextArea
-	delimiterLay = delimiter
+	var srcTextArea, tarTextArea, delimiter layout.LayoutModel
+	srcTextArea = srctextarea.InitialModel(ctx)
+	tarTextArea = tartextarea.InitialModel(ctx)
+	delimiter = textareadelimiter.InitialModel(ctx)
 
 	// Define the general structure of the view
 	lay := layout.NewLayout(
@@ -52,9 +42,9 @@ func InitialModel(ctx *context.ProgramContext) Model {
 			layout.Fill(&formalityBtn, layout.Right, 0.25),
 		),
 		layout.NewRow(
-			layout.FillAuto(&srcTextAreaLay, layout.Left),
-			layout.Fixed(&delimiterLay, layout.Center, 5).NotSelectable(),
-			layout.FillAuto(&tarTextAreaLay, layout.Left),
+			layout.FillAuto(&srcTextArea, layout.Left),
+			layout.Fixed(&delimiter, layout.Center, 5).NotSelectable(),
+			layout.FillAuto(&tarTextArea, layout.Left),
 			layout.Empty(),
 		),
 		layout.NewRow(
@@ -66,13 +56,8 @@ func InitialModel(ctx *context.ProgramContext) Model {
 	)
 
 	return Model{
-		ctx:               ctx,
-		lay:               lay,
-		topbar:            topbar.InitialModel(ctx),
-		help:              help.InitialModel(ctx, 8),
-		srcTextArea:       srcTextArea,
-		tarTextArea:       tarTextArea,
-		textareaDelimiter: delimiter,
+		ctx: ctx,
+		lay: lay,
 	}
 }
 
@@ -84,21 +69,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		t, cmd := m.topbar.Update(msg)
-		m.topbar = t.(topbar.Model)
-		cmds = append(cmds, cmd)
 
+	case com.ContentSizeMsg:
 		m.lay.Resize(msg.Width-4, msg.Height)
+
 	case com.InsertModeEnteredMsg:
 		m.insertMode = true
+
 	case com.InsertModeExitedMsg:
 		m.insertMode = false
-	case tea.KeyMsg:
-		h, cmd := m.help.Update(msg)
-		m.help = h.(help.Model)
-		cmds = append(cmds, cmd)
 
+	case tea.KeyMsg:
 		switch {
 		case m.insertMode:
 			// Ignore Keystrokes
@@ -127,10 +108,5 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	style := m.ctx.Styles.MainView.Style
 
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		m.topbar.View(),
-		style.Render(m.lay.View()),
-		m.help.View(),
-	)
+	return style.Render(m.lay.View())
 }

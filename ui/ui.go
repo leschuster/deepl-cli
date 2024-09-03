@@ -5,8 +5,11 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	deeplapi "github.com/leschuster/deepl-cli/pkg/deepl-api"
 	"github.com/leschuster/deepl-cli/ui/com"
+	"github.com/leschuster/deepl-cli/ui/components/header"
+	"github.com/leschuster/deepl-cli/ui/components/help"
 	"github.com/leschuster/deepl-cli/ui/context"
 	formalityview "github.com/leschuster/deepl-cli/ui/views/formality-view"
 	loginview "github.com/leschuster/deepl-cli/ui/views/login-view"
@@ -25,6 +28,11 @@ const (
 	loginViewIdx
 )
 
+const (
+	headerHeight = 2
+	helpHeight   = 6
+)
+
 type Model struct {
 	ctx      *context.ProgramContext
 	views    []tea.Model
@@ -32,6 +40,8 @@ type Model struct {
 	err      error
 	loaded   bool
 	quitting bool
+	header   header.Model
+	help     help.Model
 }
 
 func InitialModel(api *deeplapi.DeeplAPI) Model {
@@ -49,6 +59,8 @@ func InitialModel(api *deeplapi.DeeplAPI) Model {
 		ctx:      ctx,
 		views:    views,
 		currView: mainViewIdx,
+		header:   header.InitialModel(ctx),
+		help:     help.InitialModel(ctx, helpHeight),
 	}
 }
 
@@ -78,18 +90,42 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.ctx.ScreenWidth = msg.Width
 		m.ctx.ScreenHeight = msg.Height
 
+		contentWidth := msg.Width
+		contentHeight := msg.Height - headerHeight - helpHeight - 1
+
+		// Pass on to header
+		h, cmd := m.header.Update(msg)
+		m.header = h.(header.Model)
+		cmds = append(cmds, cmd)
+
+		cmds = append(cmds, com.ContentSizeCmd(contentWidth, contentHeight))
+
+		return m, tea.Batch(cmds...)
+
+	// Did the content size change?
+	case com.ContentSizeMsg:
+		// This message is thrown in the case tea.WindowSIzeMsg
+		// We catch it here to distribute it among ALL views,
+		// not just the active one
+
 		for i, view := range m.views {
 			model, cmd := view.Update(msg)
 			m.views[i] = model
 			cmds = append(cmds, cmd)
 		}
 
+		// UI is loaded
 		m.loaded = true
 
 		return m, tea.Batch(cmds...)
 
 	// Is it a key press?
 	case tea.KeyMsg:
+		// Pass it on to help
+		h, cmd := m.help.Update(msg)
+		m.help = h.(help.Model)
+		cmds = append(cmds, cmd)
+
 		switch msg.String() {
 		case "ctrl+c", "q":
 			m.quitting = true
@@ -144,7 +180,12 @@ func (m Model) View() string {
 		return "Loading..."
 	}
 
-	return m.views[m.currView].View()
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		m.header.View(),
+		m.views[m.currView].View(),
+		m.help.View(),
+	)
 }
 
 // Start and show the user interface
