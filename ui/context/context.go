@@ -22,11 +22,10 @@ type ProgramContext struct {
 	InsertMode         bool
 }
 
-func New(api *deeplapi.DeeplAPI) *ProgramContext {
+func New() *ProgramContext {
 	return &ProgramContext{
-		Api:                api,
 		Keys:               keys.DefaultKeyMap(),
 		Styles:             styles.New(),
-		AvailableLanguages: utils.NewAvailableLanguages(api),
+		AvailableLanguages: utils.NewAvailableLanguages(),
 	}
 }

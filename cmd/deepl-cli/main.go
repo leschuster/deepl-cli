@@ -5,25 +5,17 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/joho/godotenv"
-	deeplapi "github.com/leschuster/deepl-cli/pkg/deepl-api"
+	"github.com/leschuster/deepl-cli/pkg/auth"
 	"github.com/leschuster/deepl-cli/ui"
 )
 
+const (
+	appId = "com.leschuster.deepl-cli"
+	user  = "deepl api key"
+)
+
 func main() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		fmt.Printf(".env file not found")
-		os.Exit(1)
-	}
-
-	apiKey := os.Getenv("API_KEY")
-	if apiKey == "" {
-		fmt.Printf("You need to provide an API_KEY env variable.")
-		os.Exit(1)
-	}
-
-	api := deeplapi.New(apiKey)
+	auth := auth.New(appId, user)
 
 	if len(os.Getenv("DEBUG")) > 0 {
 		f, err := tea.LogToFile("debug.log", "debug")
@@ -34,5 +26,5 @@ func main() {
 		defer f.Close()
 	}
 
-	ui.Run(api)
+	ui.Run(auth)
 }

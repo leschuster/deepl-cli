@@ -1,6 +1,8 @@
 package srclangview
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -24,11 +26,11 @@ func InitialModel(ctx *context.ProgramContext) Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	cmds := []tea.Cmd{
-		m.ctx.AvailableLanguages.LoadInitial, // Load available languages
+	if api := m.ctx.Api; api != nil {
+		return m.ctx.AvailableLanguages.LoadInitial(*api) // Load available languages
+	} else {
+		return com.ThrowErr(fmt.Errorf("ctx.api is nil"))
 	}
-
-	return tea.Batch(cmds...)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

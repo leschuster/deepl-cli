@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/leschuster/deepl-cli/pkg/auth"
 	deeplapi "github.com/leschuster/deepl-cli/pkg/deepl-api"
 	"github.com/leschuster/deepl-cli/ui/com"
 	"github.com/leschuster/deepl-cli/ui/components/header"
@@ -35,6 +36,7 @@ const (
 )
 
 type Model struct {
+	auth     auth.Auth
 	ctx      *context.ProgramContext
 	views    []tea.Model
 	currView ViewIdx
@@ -45,8 +47,8 @@ type Model struct {
 	help     help.Model
 }
 
-func InitialModel(api *deeplapi.DeeplAPI) Model {
-	ctx := context.New(api)
+func InitialModel(auth auth.Auth) Model {
+	ctx := context.New()
 
 	views := []tea.Model{
 		mainview.InitialModel(ctx),
@@ -56,10 +58,22 @@ func InitialModel(api *deeplapi.DeeplAPI) Model {
 		loginview.InitialModel(ctx),
 	}
 
+	currView := mainViewIdx
+
+	if apiKey, err := auth.GetAPIKey(); err == nil {
+		// User is already signed in
+		ctx.Api = deeplapi.New(apiKey)
+	} else {
+		// User is not signed in
+		// Redirect to login view
+		currView = loginViewIdx
+	}
+
 	return Model{
+		auth:     auth,
 		ctx:      ctx,
 		views:    views,
-		currView: mainViewIdx,
+		currView: currView,
 		header:   header.InitialModel(ctx),
 		help:     help.InitialModel(ctx, helpHeight),
 	}
@@ -120,6 +134,27 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return m, tea.Batch(cmds...)
 
+	// Did the user enter an API key?
+	case com.APIKeyEnteredMsg:
+		m.ctx.Api = deeplapi.New(msg.Key)
+		m.currView = mainViewIdx
+
+		cmds = append(cmds, m.views[m.currView].Init())
+
+		// Command to save apikey locally
+		// Bubbletea will run it asynchronously
+		cmd = func() tea.Msg {
+			err := m.auth.SetApiKey(msg.Key)
+			if err != nil {
+				return com.ThrowErr(err)
+			}
+			return nil
+		}
+		cmds = append(cmds, cmd)
+
+		// Exit early so that no sub component receives this message
+		return m, tea.Batch(cmds...)
+
 	// Is it a key press?
 	case tea.KeyMsg:
 		// Pass it on to help
@@ -140,9 +175,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.currView = loginViewIdx
 			return m, m.views[m.currView].Init()
 		}
-
-	case com.APIKeySaved:
-		m.currView = mainViewIdx
 
 	case com.SrcLangBtnSelectedMsg:
 		m.currView = srcLangViewIdx
@@ -175,6 +207,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.ctx.InsertMode = false
 
 	case com.TranslateBtnSelectedMsg:
+		if m.ctx.Api == nil {
+			return m, com.ThrowErr(fmt.Errorf("ctx.api is nil"))
+		}
+
 		// Define a command that will fetch the translation
 		// We return this command because Bubbletea handles
 		// commands asynchronously
@@ -248,9 +284,9 @@ func (m Model) View() string {
 }
 
 // Start and show the user interface
-func Run(api *deeplapi.DeeplAPI) {
+func Run(auth auth.Auth) {
 	// Create a new program occupying the whole screen
-	p := tea.NewProgram(InitialModel(api), tea.WithAltScreen())
+	p := tea.NewProgram(InitialModel(auth), tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "There has been an error: %v\n", err)

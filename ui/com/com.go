@@ -26,6 +26,20 @@ func ThrowErr(err error) func() tea.Msg {
 	}
 }
 
+// Describe the action that the user entered an API key
+type APIKeyEnteredMsg struct {
+	Key string
+}
+
+// Command to trigger APIKeyEntered
+func APIKeyEnteredCmd(key string) func() tea.Msg {
+	return func() tea.Msg {
+		return APIKeyEnteredMsg{
+			Key: key,
+		}
+	}
+}
+
 // Describes that the size of the content viewport changed
 // Difference to tea.WindowSizeMsg: this one contains the screen height substracted
 // by header and footer height, and the screen width substracted by global margins
@@ -166,6 +180,3 @@ func APITranslationReceivedCmd() func() tea.Msg {
 		return APITranslationReceivedMsg{}
 	}
 }
-
-// Describes that the API key of the user was securely saved
-type APIKeySaved struct{}

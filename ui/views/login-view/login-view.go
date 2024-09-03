@@ -42,9 +42,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, m.ctx.Keys.Select):
 			apiKey := m.input.Value()
-			_ = apiKey
 
 			cmds = append(cmds, com.InsertModeExitedCmd())
+			cmds = append(cmds, com.APIKeyEnteredCmd(apiKey))
 		}
 	}
 
