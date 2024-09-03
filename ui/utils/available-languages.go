@@ -29,7 +29,10 @@ func (al *AvailableLanguages) LoadInitial() tea.Cmd {
 
 	if al.srcLangs != nil && al.tarLangs != nil {
 		// Already fetched data
-		return nil
+
+		// We need to execute the cmd again so that newly created components
+		// will fetch the data
+		return com.APILanguagesReceivedCmd()
 	}
 
 	resp, err := al.api.GetLanguages()
