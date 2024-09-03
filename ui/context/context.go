@@ -16,8 +16,8 @@ type ProgramContext struct {
 	SourceLanguage     *deeplapi.Language
 	TargetLanguage     *deeplapi.Language
 	SourceText         string
-	TargetText         string
 	Formality          string
+	TranslationResult  *deeplapi.TranslateResp
 	AvailableLanguages utils.AvailableLanguages
 }
 

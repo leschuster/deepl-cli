@@ -25,7 +25,7 @@ func InitialModel(ctx *context.ProgramContext) Model {
 
 func (m Model) Init() tea.Cmd {
 	cmds := []tea.Cmd{
-		m.ctx.AvailableLanguages.LoadInitial(), // Load available languages
+		m.ctx.AvailableLanguages.LoadInitial, // Load available languages
 	}
 
 	return tea.Batch(cmds...)

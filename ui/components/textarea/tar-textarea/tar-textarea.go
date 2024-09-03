@@ -44,7 +44,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Received translation
 	case com.APITranslationReceivedMsg:
-		m.textarea.SetValue(m.ctx.TargetText)
+		if res := m.ctx.TranslationResult; res != nil && len(res.Translations) > 0 {
+			text := res.Translations[0].Text
+			m.textarea.SetValue(text)
+		}
 
 	case tea.KeyMsg:
 		switch {

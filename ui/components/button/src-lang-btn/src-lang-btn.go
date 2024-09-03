@@ -42,6 +42,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case com.SrcLangSelectedMsg:
 		m.btn.SetText(msg.Language.Name)
 
+	case com.APITranslationReceivedMsg:
+		if res := m.ctx.TranslationResult; res != nil && len(res.Translations) > 0 {
+			//langDetected := res.Translations[0].DetectedSourceLanguage
+			// TODO
+		}
+
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.ctx.Keys.Select):

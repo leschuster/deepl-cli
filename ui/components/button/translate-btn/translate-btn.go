@@ -3,6 +3,7 @@ package translatebtn
 import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/leschuster/deepl-cli/ui/com"
 	"github.com/leschuster/deepl-cli/ui/components/button"
 	"github.com/leschuster/deepl-cli/ui/components/layout"
 	"github.com/leschuster/deepl-cli/ui/context"
@@ -40,7 +41,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.ctx.Keys.Select):
-			// TODO
+			return m, com.TranslateBtnSelectedCmd()
 		}
 	}
 

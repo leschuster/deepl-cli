@@ -23,7 +23,7 @@ func NewAvailableLanguages(api *deeplapi.DeeplAPI) AvailableLanguages {
 	}
 }
 
-func (al *AvailableLanguages) LoadInitial() tea.Cmd {
+func (al *AvailableLanguages) LoadInitial() tea.Msg {
 	al.mu.Lock()
 	defer al.mu.Unlock()
 
@@ -32,7 +32,7 @@ func (al *AvailableLanguages) LoadInitial() tea.Cmd {
 
 		// We need to execute the cmd again so that newly created components
 		// will fetch the data
-		return com.APILanguagesReceivedCmd()
+		return com.APILanguagesReceivedMsg{}
 	}
 
 	resp, err := al.api.GetLanguages()
@@ -43,7 +43,7 @@ func (al *AvailableLanguages) LoadInitial() tea.Cmd {
 	al.srcLangs = resp.Source
 	al.tarLangs = resp.Target
 
-	return com.APILanguagesReceivedCmd()
+	return com.APILanguagesReceivedMsg{}
 }
 
 func (al *AvailableLanguages) GetSourceLanguages() ([]deeplapi.Language, error) {

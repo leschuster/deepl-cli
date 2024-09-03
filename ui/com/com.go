@@ -116,6 +116,16 @@ func FormalityBtnSelectedCmd() func() tea.Msg {
 	}
 }
 
+// Describes the action of the user selecting the translate button
+type TranslateBtnSelectedMsg struct{}
+
+// Command to trigger TranslateBtnSelected
+func TranslateBtnSelectedCmd() func() tea.Msg {
+	return func() tea.Msg {
+		return TranslateBtnSelectedMsg{}
+	}
+}
+
 // Describes the action of the user entering insert mode
 // All navigational inputs shall be ignored for the time being
 type InsertModeEnteredMsg struct{}

@@ -158,6 +158,50 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case com.FormalitySelectedMsg:
 		m.ctx.Formality = msg.Formality
 		m.currView = mainViewIdx
+
+	case com.TranslateBtnSelectedMsg:
+		// Define a command that will fetch the translation
+		// We return this command because Bubbletea handles
+		// commands asynchronously
+		cmd = func() tea.Msg {
+			srcLang := "" // auto, if empty
+			if m.ctx.SourceLanguage != nil {
+				srcLang = m.ctx.SourceLanguage.Language
+			}
+
+			if m.ctx.TargetLanguage == nil {
+				return com.Err{
+					Err: fmt.Errorf("no target language selected"),
+				}
+			}
+			tarLang := m.ctx.TargetLanguage.Language
+
+			formality := ""
+			if m.ctx.TargetLanguage.SupportsFormality {
+				formality = m.ctx.Formality
+			}
+
+			params := deeplapi.TranslateParams{
+				Text:       []string{m.ctx.SourceText},
+				SourceLang: srcLang,
+				TargetLang: tarLang,
+				Context:    "",
+				Formality:  formality,
+			}
+
+			resp, err := m.ctx.Api.Translate(params)
+			if err != nil {
+				return com.Err{
+					Err: fmt.Errorf("failed to fetch translation: %v", err),
+				}
+			}
+
+			m.ctx.TranslationResult = resp
+
+			return com.APITranslationReceivedMsg{}
+		}
+
+		return m, cmd
 	}
 
 	model, cmd := m.views[m.currView].Update(msg)
