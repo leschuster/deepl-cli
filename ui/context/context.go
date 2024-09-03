@@ -19,6 +19,7 @@ type ProgramContext struct {
 	Formality          string
 	TranslationResult  *deeplapi.TranslateResp
 	AvailableLanguages utils.AvailableLanguages
+	InsertMode         bool
 }
 
 func New(api *deeplapi.DeeplAPI) *ProgramContext {

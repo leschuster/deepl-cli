@@ -5,8 +5,8 @@ import "github.com/charmbracelet/bubbles/key"
 func DefaultKeyMap() KeyMap {
 	return KeyMap{
 		Select: key.NewBinding(
-			key.WithKeys("enter"),
-			key.WithHelp("enter", "select"),
+			key.WithKeys("enter", "i"),
+			key.WithHelp("enter/i", "select"),
 		),
 		Unselect: key.NewBinding(
 			key.WithKeys("esc"),
@@ -79,7 +79,7 @@ func DefaultKeyMap() KeyMap {
 
 		// Quitting.
 		Quit: key.NewBinding(
-			key.WithKeys("q", "esc"),
+			key.WithKeys("q"),
 			key.WithHelp("q", "quit"),
 		),
 		ForceQuit: key.NewBinding(key.WithKeys("ctrl+c")),

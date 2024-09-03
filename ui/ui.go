@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	deeplapi "github.com/leschuster/deepl-cli/pkg/deepl-api"
@@ -126,10 +127,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.help = h.(help.Model)
 		cmds = append(cmds, cmd)
 
-		switch msg.String() {
-		case "ctrl+c", "q":
+		switch {
+		case key.Matches(msg, m.ctx.Keys.Quit) && !m.ctx.InsertMode:
+			fallthrough
+		case key.Matches(msg, m.ctx.Keys.ForceQuit):
 			m.quitting = true
 			return m, tea.Quit
+		}
+
+		switch msg.String() {
 		case "4":
 			m.currView = loginViewIdx
 			return m, m.views[m.currView].Init()
@@ -158,6 +164,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case com.FormalitySelectedMsg:
 		m.ctx.Formality = msg.Formality
 		m.currView = mainViewIdx
+
+	case com.InsertModeEnteredMsg:
+		m.ctx.InsertMode = true
+
+	case com.InsertModeExitedMsg:
+		m.ctx.InsertMode = false
 
 	case com.TranslateBtnSelectedMsg:
 		// Define a command that will fetch the translation
