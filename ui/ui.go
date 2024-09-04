@@ -13,6 +13,7 @@ import (
 	"github.com/leschuster/deepl-cli/ui/components/header"
 	"github.com/leschuster/deepl-cli/ui/components/help"
 	"github.com/leschuster/deepl-cli/ui/context"
+	errorview "github.com/leschuster/deepl-cli/ui/views/error-view"
 	formalityview "github.com/leschuster/deepl-cli/ui/views/formality-view"
 	loginview "github.com/leschuster/deepl-cli/ui/views/login-view"
 	mainview "github.com/leschuster/deepl-cli/ui/views/main-view"
@@ -28,6 +29,7 @@ const (
 	tarLangViewIdx
 	formalityViewIdx
 	loginViewIdx
+	errorViewIdx
 )
 
 const (
@@ -56,6 +58,7 @@ func InitialModel(auth auth.Auth) Model {
 		tarlangview.InitialModel(ctx),
 		formalityview.InitialModel(ctx),
 		loginview.InitialModel(ctx),
+		errorview.InitialModel(ctx),
 	}
 
 	currView := mainViewIdx
@@ -97,8 +100,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Did an error occur?
 	case com.Err:
 		m.err = msg.Err
-		fmt.Fprintf(os.Stderr, "Error: %v\n", msg.Err)
-		return m, tea.Quit
+		m.currView = errorViewIdx
 
 	// Did the window size change?
 	case tea.WindowSizeMsg:
@@ -168,12 +170,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.ctx.Keys.ForceQuit):
 			m.quitting = true
 			return m, tea.Quit
-		}
-
-		switch msg.String() {
-		case "4":
-			m.currView = loginViewIdx
-			return m, m.views[m.currView].Init()
 		}
 
 	case com.SrcLangBtnSelectedMsg:
@@ -263,10 +259,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	if m.err != nil {
-		return m.err.Error()
-	}
-
 	if m.quitting {
 		return ""
 	}

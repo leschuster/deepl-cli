@@ -18,6 +18,7 @@ type Styles struct {
 		ButtonBackground       lipgloss.AdaptiveColor
 		ButtonActiveForeground lipgloss.AdaptiveColor
 		ButtonActiveBackground lipgloss.AdaptiveColor
+		Error                  lipgloss.AdaptiveColor
 	}
 
 	Textarea struct {
@@ -49,6 +50,10 @@ type Styles struct {
 		Style lipgloss.Style
 	}
 
+	ErrorView struct {
+		Style lipgloss.Style
+	}
+
 	MainView struct {
 		Style lipgloss.Style
 	}
@@ -76,6 +81,7 @@ func New() *Styles {
 	s.Colors.ButtonBackground = lipgloss.AdaptiveColor{Light: "360", Dark: "360"}
 	s.Colors.ButtonActiveForeground = lipgloss.AdaptiveColor{Light: "82", Dark: "82"}
 	s.Colors.ButtonActiveBackground = s.Colors.Active
+	s.Colors.Error = lipgloss.AdaptiveColor{Light: "180", Dark: "180"}
 
 	s.Textarea.Style = lipgloss.NewStyle().
 		Margin(2, 0)
@@ -112,6 +118,11 @@ func New() *Styles {
 		BorderBackground(lipgloss.Color("62"))
 
 	s.LoginView.Style = lipgloss.NewStyle().
+		Padding(1, 2).
+		Border(lipgloss.RoundedBorder()).
+		Foreground(s.Colors.Text)
+
+	s.ErrorView.Style = lipgloss.NewStyle().
 		Padding(1, 2).
 		Border(lipgloss.RoundedBorder()).
 		Foreground(s.Colors.Text)

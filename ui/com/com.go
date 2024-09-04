@@ -14,6 +14,9 @@ type Err struct {
 
 // Get error message as string
 func (e Err) Error() string {
+	if e.Err == nil {
+		return ""
+	}
 	return e.Err.Error()
 }
 
