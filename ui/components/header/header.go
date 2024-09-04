@@ -33,9 +33,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	left := m.ctx.Styles.Topbar.LeftSide.Render(m.left)
-	right := m.ctx.Styles.Topbar.RightSide.Render(m.right)
-	spacer := m.ctx.Styles.Topbar.Spacer.Width(
+	left := m.ctx.Styles.Header.LeftSide.Render(m.left)
+	right := m.ctx.Styles.Header.RightSide.Render(m.right)
+	spacer := m.ctx.Styles.Header.Spacer.Width(
 		m.width - lipgloss.Width(left) - lipgloss.Width(right),
 	).Render("")
 
