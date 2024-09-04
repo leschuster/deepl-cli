@@ -172,6 +172,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 
+	case com.APILanguagesReceivedMsg:
+		cmds = append(cmds, com.StopLoadingCmd())
+
+	case com.APITranslationReceivedMsg:
+		cmds = append(cmds, com.StopLoadingCmd())
+
 	case com.SrcLangBtnSelectedMsg:
 		m.currView = srcLangViewIdx
 		return m, m.views[m.currView].Init()
@@ -206,6 +212,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.ctx.Api == nil {
 			return m, com.ThrowErr(fmt.Errorf("ctx.api is nil"))
 		}
+
+		cmds = append(cmds, com.StartLoadingCmd())
 
 		// Define a command that will fetch the translation
 		// We return this command because Bubbletea handles
@@ -247,13 +255,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			return com.APITranslationReceivedMsg{}
 		}
+		cmds = append(cmds, cmd)
 
-		return m, cmd
+		return m, tea.Batch(cmds...)
 	}
 
+	// Pass msg to header
+	headerModel, cmd := m.header.Update(msg)
+	cmds = append(cmds, cmd)
+	m.header = headerModel.(header.Model)
+
+	// Pass msg to activ view
 	model, cmd := m.views[m.currView].Update(msg)
 	cmds = append(cmds, cmd)
 	m.views[m.currView] = model
+
+	// Pass msg to help
+	helpModel, cmd := m.help.Update(msg)
+	cmds = append(cmds, cmd)
+	m.help = helpModel.(help.Model)
 
 	return m, tea.Batch(cmds...)
 }

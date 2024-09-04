@@ -183,3 +183,23 @@ func APITranslationReceivedCmd() func() tea.Msg {
 		return APITranslationReceivedMsg{}
 	}
 }
+
+// Describes that a loading process started in the background
+type StartLoadingMsg struct{}
+
+// Command to trigger StartLoading
+func StartLoadingCmd() func() tea.Msg {
+	return func() tea.Msg {
+		return StartLoadingMsg{}
+	}
+}
+
+// Describes that a loading process stopped in the background
+type StopLoadingMsg struct{}
+
+// Command to trigger StopLoading
+func StopLoadingCmd() func() tea.Msg {
+	return func() tea.Msg {
+		return StopLoadingMsg{}
+	}
+}

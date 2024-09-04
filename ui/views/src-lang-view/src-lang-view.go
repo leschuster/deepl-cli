@@ -26,8 +26,12 @@ func InitialModel(ctx *context.ProgramContext) Model {
 }
 
 func (m Model) Init() tea.Cmd {
+	var cmds []tea.Cmd
+
 	if api := m.ctx.Api; api != nil {
-		return m.ctx.AvailableLanguages.LoadInitial(*api) // Load available languages
+		cmds = append(cmds, com.StartLoadingCmd())
+		cmds = append(cmds, m.ctx.AvailableLanguages.LoadInitial(*api)) // Load available languages
+		return tea.Batch(cmds...)
 	} else {
 		return com.ThrowErr(fmt.Errorf("ctx.api is nil"))
 	}
