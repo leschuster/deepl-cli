@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+main
 
 # Test binary, built with `go test -c`
 *.test
@@ -24,3 +25,9 @@ go.work.sum
 
 # macOS
 .DS_Store
+
+# Debug
+debug.log
+__debug*
+
+dist/
