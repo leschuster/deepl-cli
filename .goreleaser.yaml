@@ -15,16 +15,27 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
+    main: ./cmd/deepl-cli
     goos:
+      - freebsd
       - linux
       - windows
       - darwin
+    goarch:
+      - amd64
+      - arm64
+      - arm
+      - "386"
+    goarm:
+      - 6
+      - 7
 
 archives:
-  - format: tar.gz
+  - format: binary
     # this name template makes the OS and Arch compatible with the results of `uname`.
     name_template: >-
       {{ .ProjectName }}_
+      {{- .Tag }}_
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
@@ -34,7 +45,8 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
-
+checksum:
+  name_template: "checksums.txt"
 changelog:
   sort: asc
   filters:
