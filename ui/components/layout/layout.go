@@ -61,6 +61,10 @@ func (l *Layout) Init() tea.Cmd {
 		}
 	}
 
+	if l.colCount > 0 && l.rowCount > 0 {
+		l.SetActive(l.active.x, l.active.y)
+	}
+
 	return tea.Batch(cmds...)
 }
 
