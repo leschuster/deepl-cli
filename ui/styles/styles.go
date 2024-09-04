@@ -71,13 +71,13 @@ func New() *Styles {
 
 	// COLORS
 
-	s.Colors.Primary.Foreground = lipgloss.AdaptiveColor{Light: "#ffffff", Dark: "#ffffff"}
-	s.Colors.Primary.Background = lipgloss.AdaptiveColor{Light: "#5F5FD7", Dark: "#5F5FD7"}
+	s.Colors.Primary.Foreground = lipgloss.AdaptiveColor{Light: "15", Dark: "15"}
+	s.Colors.Primary.Background = lipgloss.AdaptiveColor{Light: "56", Dark: "56"}
 
-	s.Colors.Active.Foreground = lipgloss.AdaptiveColor{Light: "#ffffff", Dark: "#ffffff"}
-	s.Colors.Active.Background = lipgloss.AdaptiveColor{Light: "#FE39D7", Dark: "#FE39D7"}
+	s.Colors.Active.Foreground = lipgloss.AdaptiveColor{Light: "12", Dark: "12"}
+	s.Colors.Active.Background = lipgloss.AdaptiveColor{Light: "200", Dark: "200"}
 
-	s.Colors.Error = lipgloss.AdaptiveColor{Light: "#FF5E5B", Dark: "#FF5E5B"}
+	s.Colors.Error = lipgloss.AdaptiveColor{Light: "9", Dark: "9"}
 
 	// VIEWS
 
