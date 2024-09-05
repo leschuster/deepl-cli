@@ -96,6 +96,6 @@ func (m Model) View() string {
 
 func (m *Model) calcListSize() (width, height int) {
 	width = min(42, m.contentWidth)
-	height = max(10, int(0.75*float32(m.contentHeight))-4)
+	height = max(20, int(0.75*float32(m.contentHeight))-4)
 	return
 }
