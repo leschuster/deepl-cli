@@ -1,3 +1,5 @@
+// Package textarea provides a base textarea component.
+
 package textarea
 
 import (
@@ -8,12 +10,14 @@ import (
 	"github.com/leschuster/deepl-cli/ui/context"
 )
 
+// Textarea model
 type Model struct {
 	ctx      *context.ProgramContext
 	textarea textarea.Model
 	active   bool
 }
 
+// Get new textarea
 func InitialModel(ctx *context.ProgramContext, placeholder string) Model {
 	ti := textarea.New()
 	ti.Placeholder = placeholder
@@ -26,17 +30,19 @@ func InitialModel(ctx *context.ProgramContext, placeholder string) Model {
 	}
 }
 
+// Init textarea
 func (m Model) Init() tea.Cmd {
 	return nil
 }
 
+// Update textarea
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	switch msg := msg.(type) {
+	switch msg.(type) {
 	case com.ContentSizeMsg:
-		textareaHeight := msg.Height - 10
+		textareaHeight := m.ctx.ContentHeight - 10
 		m.textarea.SetHeight(textareaHeight)
 	}
 
@@ -45,6 +51,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
+// Render textarea
 func (m Model) View() string {
 	fn := m.ctx.Styles.Textarea.Style.Render
 

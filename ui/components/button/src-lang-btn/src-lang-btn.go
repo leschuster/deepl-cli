@@ -1,3 +1,6 @@
+// Package srclangbtn provides the UI button that
+// redirects the user to the srcLangView
+
 package srclangbtn
 
 import (

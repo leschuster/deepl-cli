@@ -1,3 +1,7 @@
+// Package button provides a base button component, that can be
+// wrapped by specific button component. It only provides uniform
+// styling, but no logic for user interaction.
+
 package button
 
 import (
@@ -24,10 +28,12 @@ func InitialModel(ctx *context.ProgramContext, label, text string) Model {
 	}
 }
 
+// Initialize button
 func (m Model) Init() tea.Cmd {
 	return nil
 }
 
+// Update button
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	//! This is a base component. To implement logic
 	//! please use a wrapper component.
@@ -35,6 +41,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+// View button
 func (m Model) View() string {
 	fn := m.ctx.Styles.Button.Style.Render
 

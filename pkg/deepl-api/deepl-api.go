@@ -1,6 +1,7 @@
 // Package deeplapi provides a wrapper around the official DeepL API.
 // You can translate text and retrieve available languages.
 // An API key is required. Both free and paid tiers are supported.
+
 package deeplapi
 
 import (

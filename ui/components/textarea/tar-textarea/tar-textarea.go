@@ -1,3 +1,5 @@
+// Package tartextarea provides the textarea that displays the translation.
+
 package tartextarea
 
 import (

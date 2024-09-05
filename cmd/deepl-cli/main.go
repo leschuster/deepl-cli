@@ -17,6 +17,7 @@ const (
 func main() {
 	auth := auth.New(appId, user)
 
+	// Redirect logs to a file
 	if len(os.Getenv("DEBUG")) > 0 {
 		f, err := tea.LogToFile("debug.log", "debug")
 		if err != nil {

@@ -1,3 +1,6 @@
+// Package translatebtn provides the UI button that
+// starts the translation process
+
 package translatebtn
 
 import (

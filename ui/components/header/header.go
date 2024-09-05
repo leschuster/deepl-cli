@@ -1,3 +1,7 @@
+// Package header provides the top bar of the application.
+// It displays the name of the app, the current version,
+// as well as the current status (loading etc.).
+
 package header
 
 import (
@@ -7,6 +11,7 @@ import (
 	"github.com/leschuster/deepl-cli/ui/context"
 )
 
+// Header model to display the top bar of the application
 type Model struct {
 	ctx         *context.ProgramContext
 	width       int
@@ -18,7 +23,7 @@ func InitialModel(ctx *context.ProgramContext) Model {
 	return Model{
 		ctx:   ctx,
 		left:  "DeepL CLI (Unofficial)",
-		right: "v0.1.0",
+		right: "v0.1.1",
 	}
 }
 

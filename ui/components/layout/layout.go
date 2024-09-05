@@ -1,3 +1,14 @@
+// The layout package provides a way of arranging and displaying multiple
+// components in a single view with the ability to navigate between them.
+// Each component needs to implement the LayoutModel interface, an extension
+// of tea.Model. The interface provides methods to select a component as the
+// currently active element (thus, changing the style of it).
+// Components are arranged in rows and columns. Each column needs to have the same
+// number of elements, although you may provide an "empty" element, that is both
+// skipped in rendering and navigating.
+// You may call NavigateUp, NavigateRight, NavigateDown, NavigateLeft to change
+// which element is currently active.
+
 package layout
 
 import (
@@ -8,6 +19,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// The Layout struct provides a way of arranging and displaying multiple
+// components in a single view with the ability to navigate between them.
 type Layout struct {
 	rows                      []Row
 	screenWidth, screenHeight int
@@ -17,6 +30,7 @@ type Layout struct {
 	}
 }
 
+// Get a new Layout instance
 func NewLayout(rows ...Row) *Layout {
 	// Check for equal row lenghts
 	if len(rows) > 0 {
@@ -46,6 +60,7 @@ func NewLayout(rows ...Row) *Layout {
 	}
 }
 
+// Call Init() on all components
 func (l *Layout) Init() tea.Cmd {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
@@ -68,6 +83,7 @@ func (l *Layout) Init() tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
+// Update only the active element with the provided message
 func (l *Layout) UpdateActive(msg tea.Msg) tea.Cmd {
 	if el := l.GetActive(); el != nil && el.model != nil {
 		return l.update(msg, l.active.x, l.active.y)
@@ -75,6 +91,7 @@ func (l *Layout) UpdateActive(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
+// Update all elements with the provided message
 func (l *Layout) UpdateAll(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
@@ -89,6 +106,7 @@ func (l *Layout) UpdateAll(msg tea.Msg) tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
+// Get a reference to the active element
 func (l *Layout) GetActive() *PositionalElement {
 	if l.colCount == 0 || l.rowCount == 0 {
 		return nil
@@ -118,6 +136,7 @@ func (l *Layout) SetActive(x, y int) {
 	l.active.x, l.active.y = x, y
 }
 
+// Render the layout
 func (l *Layout) View() string {
 	rowsRendered := []string{}
 
@@ -133,6 +152,7 @@ func (l *Layout) View() string {
 	)
 }
 
+// Set a new width and height for the Layout to occupy.
 func (l *Layout) Resize(width, height int) {
 	l.screenWidth, l.screenHeight = width, height
 
@@ -251,6 +271,7 @@ func (l *Layout) NavigateLeft() {
 	}
 }
 
+// Get element at position x, y
 func (l *Layout) get(x, y int) PositionalElement {
 	return l.rows[y].get(x)
 }
@@ -265,10 +286,12 @@ func (l *Layout) getCol(x int) []PositionalElement {
 	return col
 }
 
+// Set element at position x, y
 func (l *Layout) set(x, y int, el PositionalElement) {
 	l.rows[y].set(x, el)
 }
 
+// Update element at position x, y with msg
 func (l *Layout) update(msg tea.Msg, x, y int) tea.Cmd {
 	el := l.get(x, y)
 
@@ -308,6 +331,7 @@ func getBestValue(best int, slice [](PositionalElement)) (idx int, ok bool) {
 	return -1, false
 }
 
+// Checks if the provided element can be the new active element
 func isValidChoice(el PositionalElement) bool {
 	if el.model == nil {
 		return false

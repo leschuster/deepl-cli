@@ -1,3 +1,6 @@
+// Package srctextarea provides the text area for the user to type in
+// the text that should be translated.
+
 package srctextarea
 
 import (
