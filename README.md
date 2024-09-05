@@ -12,17 +12,17 @@ When you first launch the application, you will be asked to enter an [API Key](h
 
 This key will be saved in your system's keyring. If you're on macOS or Windows, everything should work out of the box. On Linux, make sure that [GNOME Keyring](https://wiki.gnome.org/Projects/GnomeKeyring) is installed.
 
-1. **Installation**:
+2. **Installation**:
 
 Go to the releases section and download the appropriate binary for your system.
 
 Alternatively, make sure that you have at least Golang 1.23.0 installed and run the following command:
 
 ```bash
-go install https://github.com/leschuster/deepl-cli
+go install github.com/leschuster/deepl-cli
 ```
 
-1. **Usage**:
+3. **Usage**:
 
 Run `deepl-cli` in your terminal.
 

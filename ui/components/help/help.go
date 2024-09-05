@@ -1,3 +1,7 @@
+// Package help provides the help menu that is
+// displayed at the bottom of the screen.
+// It shows the available keyboard commands.
+
 package help
 
 import (
@@ -9,6 +13,7 @@ import (
 	"github.com/leschuster/deepl-cli/ui/context"
 )
 
+// Help model to display available keyboard commands.
 type Model struct {
 	ctx    *context.ProgramContext
 	help   help.Model

@@ -1,3 +1,5 @@
+// Package errorview provides the view that will be displayed after an error occurred.
+
 package errorview
 
 import (
@@ -28,7 +30,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case com.ContentSizeMsg:
-		m.contentWidth, m.contentHeight = msg.Width, msg.Height
+		m.contentWidth, m.contentHeight = m.ctx.ContentWidth, m.ctx.ContentHeight
 	case com.Err:
 		m.err = msg.Error()
 	}

@@ -9,6 +9,8 @@ import (
 	"github.com/leschuster/deepl-cli/ui/com"
 )
 
+// AvailableLanguages holds lists of all source/target languages
+// that DeepL has to offer. It also provides a method to fetch them.
 type AvailableLanguages struct {
 	srcLangs []deeplapi.Language
 	tarLangs []deeplapi.Language
@@ -21,6 +23,8 @@ func NewAvailableLanguages() AvailableLanguages {
 	}
 }
 
+// LoadInitial is a tea.Cmd that fetches available languages from DeepL
+// if they are not fetched yet.
 func (al *AvailableLanguages) LoadInitial(api deeplapi.DeeplAPI) func() tea.Msg {
 	return func() tea.Msg {
 		al.mu.Lock()

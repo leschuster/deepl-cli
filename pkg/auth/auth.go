@@ -1,3 +1,6 @@
+// Package auth provides the ability to store and retrieve
+// an API key from the system's keyring
+
 package auth
 
 import (

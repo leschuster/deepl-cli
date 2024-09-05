@@ -1,3 +1,6 @@
+// Package keys provides the keymap of the keys
+// used in this application
+
 package keys
 
 import (

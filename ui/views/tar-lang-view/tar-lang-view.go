@@ -1,3 +1,5 @@
+// Package tarlangview provides the view where the user is able to select a target language
+
 package tarlangview
 
 import (
@@ -43,7 +45,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case com.ContentSizeMsg:
-		m.contentWidth, m.contentHeight = msg.Width, msg.Height
+		m.contentWidth, m.contentHeight = m.ctx.ContentWidth, m.ctx.ContentHeight
 		w, h := m.calcListSize()
 		m.list.Resize(w, h)
 	case tea.KeyMsg:

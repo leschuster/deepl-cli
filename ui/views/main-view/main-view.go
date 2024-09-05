@@ -1,3 +1,5 @@
+// Package mainview provides the main view of the application.
+
 package mainview
 
 import (
@@ -71,7 +73,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case com.ContentSizeMsg:
-		m.lay.Resize(msg.Width-4, msg.Height)
+		m.lay.Resize(m.ctx.ContentWidth-4, m.ctx.ContentHeight)
 
 	case com.InsertModeEnteredMsg:
 		m.insertMode = true

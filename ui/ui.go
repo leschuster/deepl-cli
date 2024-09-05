@@ -1,3 +1,5 @@
+// Package ui provides the entry point for the user interface.
+
 package ui
 
 import (
@@ -32,26 +34,31 @@ const (
 	errorViewIdx
 )
 
+// Configure some layout constants
 const (
 	headerHeight = 2
 	helpHeight   = 6
 )
 
+// The ui model is at the root of the application.
+// It is responsible for managing different views
+// and rendering the header and help.
 type Model struct {
 	auth     auth.Auth
 	ctx      *context.ProgramContext
 	views    []tea.Model
 	currView ViewIdx
-	err      error
 	loaded   bool
 	quitting bool
 	header   header.Model
 	help     help.Model
 }
 
+// Get a new ui model
 func InitialModel(auth auth.Auth) Model {
 	ctx := context.New()
 
+	// Setup available views
 	views := []tea.Model{
 		mainview.InitialModel(ctx),
 		srclangview.InitialModel(ctx),
@@ -82,6 +89,7 @@ func InitialModel(auth auth.Auth) Model {
 	}
 }
 
+// Initialize ui model
 func (m Model) Init() tea.Cmd {
 	cmds := []tea.Cmd{
 		tea.SetWindowTitle("DeepL CLI (Unofficial)"), // Set Title
@@ -91,6 +99,7 @@ func (m Model) Init() tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
+// Update ui model
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
@@ -99,7 +108,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Did an error occur?
 	case com.Err:
-		m.err = msg.Err
+		// Redirect to errorView
 		m.currView = errorViewIdx
 
 	// Did the window size change?
@@ -107,21 +116,23 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.ctx.ScreenWidth = msg.Width
 		m.ctx.ScreenHeight = msg.Height
 
-		contentWidth := msg.Width
-		contentHeight := msg.Height - headerHeight - helpHeight - 1
+		// content size is the available size for a view
+		m.ctx.ContentWidth = msg.Width
+		m.ctx.ContentHeight = msg.Height - headerHeight - helpHeight - 1
 
 		// Pass on to header
 		h, cmd := m.header.Update(msg)
 		m.header = h.(header.Model)
 		cmds = append(cmds, cmd)
 
-		cmds = append(cmds, com.ContentSizeCmd(contentWidth, contentHeight))
+		// We throw a separate contentSizeMsg that other models will react on
+		cmds = append(cmds, com.ContentSizeCmd())
 
 		return m, tea.Batch(cmds...)
 
 	// Did the content size change?
 	case com.ContentSizeMsg:
-		// This message is thrown in the case tea.WindowSIzeMsg
+		// This message gets thrown after a tea.WindowSizeMsg
 		// We catch it here to distribute it among ALL views,
 		// not just the active one
 
@@ -139,11 +150,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Did the user enter an API key?
 	case com.APIKeyEnteredMsg:
 		m.ctx.Api = deeplapi.New(msg.Key)
-		m.currView = mainViewIdx
 
+		// Switch to main view
+		m.currView = mainViewIdx
 		cmds = append(cmds, m.views[m.currView].Init())
 
-		// Command to save apikey locally
+		// Define a command to save apikey locally
 		// Bubbletea will run it asynchronously
 		cmd = func() tea.Msg {
 			err := m.auth.SetApiKey(msg.Key)
@@ -154,7 +166,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		cmds = append(cmds, cmd)
 
-		// Exit early so that no sub component receives this message
+		// Exit early so that no other component receives this message
 		return m, tea.Batch(cmds...)
 
 	// Is it a key press?
@@ -172,42 +184,53 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 
+	// Did the available languages request complete?
 	case com.APILanguagesReceivedMsg:
 		cmds = append(cmds, com.StopLoadingCmd())
 
+	// Did the translation request complete?
 	case com.APITranslationReceivedMsg:
 		cmds = append(cmds, com.StopLoadingCmd())
 
+	// Did the user press the source language button?
 	case com.SrcLangBtnSelectedMsg:
 		m.currView = srcLangViewIdx
 		return m, m.views[m.currView].Init()
 
+	// Did the user select a source language?
 	case com.SrcLangSelectedMsg:
 		m.ctx.SourceLanguage = &msg.Language
 		m.currView = mainViewIdx
 
+	// Did the user press the target language button?
 	case com.TarLangBtnSelectedMsg:
 		m.currView = tarLangViewIdx
 		return m, m.views[m.currView].Init()
 
+	// Did the user select a target language?
 	case com.TarLangSelectedMsg:
 		m.ctx.TargetLanguage = &msg.Language
 		m.currView = mainViewIdx
 
+	// Did the user press the formality button?
 	case com.FormalityBtnSelectedMsg:
 		m.currView = formalityViewIdx
 		return m, m.views[m.currView].Init()
 
+	// Did the user select a formality?
 	case com.FormalitySelectedMsg:
 		m.ctx.Formality = msg.Formality
 		m.currView = mainViewIdx
 
+	// Did we enter insert mode?
 	case com.InsertModeEnteredMsg:
 		m.ctx.InsertMode = true
 
+	// Did we exit insert mode?
 	case com.InsertModeExitedMsg:
 		m.ctx.InsertMode = false
 
+	// Did the user press the translate button?
 	case com.TranslateBtnSelectedMsg:
 		if m.ctx.Api == nil {
 			return m, com.ThrowErr(fmt.Errorf("ctx.api is nil"))
@@ -219,7 +242,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// We return this command because Bubbletea handles
 		// commands asynchronously
 		cmd = func() tea.Msg {
-			srcLang := "" // auto, if empty
+			srcLang := "" // if empty, DeepL will try to detect it
 			if m.ctx.SourceLanguage != nil {
 				srcLang = m.ctx.SourceLanguage.Language
 			}
@@ -278,8 +301,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
+// View ui model
 func (m Model) View() string {
 	if m.quitting {
+		// Clear screen before exiting the program
 		return ""
 	}
 
@@ -295,7 +320,7 @@ func (m Model) View() string {
 	)
 }
 
-// Start and show the user interface
+// Start the application and show the user interface
 func Run(auth auth.Auth) {
 	// Create a new program occupying the whole screen
 	p := tea.NewProgram(InitialModel(auth), tea.WithAltScreen())

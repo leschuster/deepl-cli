@@ -1,5 +1,6 @@
 // Provides a set of internally used commands and messages
 // for the Bubbletea framework
+
 package com
 
 import (
@@ -43,20 +44,16 @@ func APIKeyEnteredCmd(key string) func() tea.Msg {
 	}
 }
 
-// Describes that the size of the content viewport changed
+// Describes that the size available to a view changed
 // Difference to tea.WindowSizeMsg: this one contains the screen height substracted
 // by header and footer height, and the screen width substracted by global margins
-type ContentSizeMsg struct {
-	Width, Height int
-}
+// The new size is accessible to the context.
+type ContentSizeMsg struct{}
 
 // Command to trogger ContentSizeMsg
-func ContentSizeCmd(width, height int) func() tea.Msg {
+func ContentSizeCmd() func() tea.Msg {
 	return func() tea.Msg {
-		return ContentSizeMsg{
-			Width:  width,
-			Height: height,
-		}
+		return ContentSizeMsg{}
 	}
 }
 

@@ -1,3 +1,5 @@
+// Package styles provides most styles used in this application.
+
 package styles
 
 import (

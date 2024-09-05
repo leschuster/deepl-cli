@@ -19,6 +19,8 @@ const (
 	fixed    = "fixed"
 )
 
+// The PositionalElement is a wrapper around the model
+// that should be displayed. It holds extra metadata.
 type PositionalElement struct {
 	elType          string // empty, fill, fixed
 	model           *LayoutModel
@@ -80,14 +82,17 @@ func (p PositionalElement) NotSelectable() PositionalElement {
 	return p
 }
 
+// Check if an element is selectable
 func (p *PositionalElement) IsSelectable() bool {
 	return p.selectable
 }
 
+// Get type of element
 func (p PositionalElement) getType() string {
 	return p.elType
 }
 
+// Render element
 func (p PositionalElement) view() string {
 	if p.elType == empty {
 		return ""
@@ -113,6 +118,7 @@ func (p PositionalElement) view() string {
 	return lipgloss.PlaceHorizontal(p.calculatedWidth, pos, content)
 }
 
+// Set element as active
 func (p PositionalElement) setActive() PositionalElement {
 	if p.model != nil {
 		m := (*p.model).SetActive()
@@ -121,6 +127,7 @@ func (p PositionalElement) setActive() PositionalElement {
 	return p
 }
 
+// Set element as not active
 func (p PositionalElement) unsetActive() PositionalElement {
 	if p.model != nil {
 		m := (*p.model).UnsetActive()
@@ -129,6 +136,7 @@ func (p PositionalElement) unsetActive() PositionalElement {
 	return p
 }
 
+// Set calculated width
 func (p PositionalElement) setCalculatedWidth(width int) PositionalElement {
 	p.calculatedWidth = width
 	if p.model != nil {

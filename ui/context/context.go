@@ -1,3 +1,6 @@
+// Package context provides a way of sharing data and functionality
+// between all models of the application.
+
 package context
 
 import (
@@ -8,18 +11,17 @@ import (
 )
 
 type ProgramContext struct {
-	Api                *deeplapi.DeeplAPI
-	Keys               keys.KeyMap
-	ScreenWidth        int
-	ScreenHeight       int
-	Styles             *styles.Styles
-	SourceLanguage     *deeplapi.Language
-	TargetLanguage     *deeplapi.Language
-	SourceText         string
-	Formality          string
-	TranslationResult  *deeplapi.TranslateResp
-	AvailableLanguages utils.AvailableLanguages
-	InsertMode         bool
+	Api                            *deeplapi.DeeplAPI
+	Keys                           keys.KeyMap
+	ScreenWidth, ScreenHeight      int // Size of entire screen
+	ContentWidth, ContentHeight    int // Size of the space that is available to a view
+	Styles                         *styles.Styles
+	SourceLanguage, TargetLanguage *deeplapi.Language
+	SourceText                     string
+	Formality                      string
+	TranslationResult              *deeplapi.TranslateResp
+	AvailableLanguages             utils.AvailableLanguages
+	InsertMode                     bool
 }
 
 func New() *ProgramContext {

@@ -1,3 +1,6 @@
+// Package formalitybtn provides the UI button that
+// redirecty the user to the formalityView
+
 package formalitybtn
 
 import (
@@ -16,7 +19,7 @@ import (
  * we do not have outside access to the Model instances.
  */
 
-// Provides the button to head over to the "select formality" page
+// Button to redirect the user to the formalityView
 type Model struct {
 	ctx *context.ProgramContext
 	btn button.Model // Just a wrapper around the base button

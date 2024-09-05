@@ -1,3 +1,6 @@
+// Package textareadelimiter provides the vertical line shown between both textareas.
+// It doesn't do anything and is just there for the visuals.
+
 package textareadelimiter
 
 import (
@@ -9,12 +12,14 @@ import (
 	"github.com/leschuster/deepl-cli/ui/context"
 )
 
+// Delimiter Model
 type Model struct {
 	ctx    *context.ProgramContext
 	height int
 	active bool
 }
 
+// Get new delimiter
 func InitialModel(ctx *context.ProgramContext) Model {
 	return Model{
 		ctx: ctx,
@@ -26,9 +31,9 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
+	switch msg.(type) {
 	case com.ContentSizeMsg:
-		m.height = msg.Height - 10
+		m.height = m.ctx.ContentHeight - 10
 	}
 	return m, nil
 }

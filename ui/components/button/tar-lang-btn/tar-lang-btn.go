@@ -1,3 +1,6 @@
+// Package tarlangbtn provides the UI button that
+// redirects the user to the tarLangView
+
 package tarlangbtn
 
 import (
