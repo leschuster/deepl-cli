@@ -1,8 +1,13 @@
 # DeepL-CLI (unofficial)
 
+<p>
+<a href="https://github.com/leschuster/deepl-cli/blob/main/LICENSE"><img src="https://img.shields.io/github/license/leschuster/deepl-cli" alt="license badge" /></a>
+<a href="https://github.com/leschuster/deepl-cli/releases"><img src="https://img.shields.io/github/v/release/leschuster/deepl-cli" alt="release badge" /></a>
+</p>
+
 This application leverages the power of [DeepL](https://www.deepl.com) to provide seamless translations directly from your terminal.
 
-## ✨ Features
+![Demo Gif](./.github/assets/demo.gif)
 
 ## 🚀 Getting Started
 
@@ -14,13 +19,13 @@ This key will be saved in your system's keyring. If you're on macOS or Windows, 
 
 2. **Installation**:
 
-Go to the releases section and download the appropriate binary for your system.
-
-Alternatively, make sure that you have at least Golang 1.23.0 installed and run the following command:
+Make sure that you have at least Golang 1.23.0 installed. Then run the following command:
 
 ```bash
-go install github.com/leschuster/deepl-cli
+go install github.com/leschuster/deepl-cli/cmd/deepl-cli@latest
 ```
+
+Alternatively, you can download the appropriate binary for your system in the release section.
 
 3. **Usage**:
 

@@ -23,7 +23,7 @@ func InitialModel(ctx *context.ProgramContext) Model {
 	return Model{
 		ctx:   ctx,
 		left:  "DeepL CLI (Unofficial)",
-		right: "v0.1.1",
+		right: "v0.1.2",
 	}
 }
 
